@@ -1,0 +1,14 @@
+name: ${project.name}
+version: ${project.version}
+description: ${project.description}
+author: SkyVox_
+website: skydhs.com
+
+# The Main class.
+main: com.skydhs.czclan.Core
+
+#commands:
+#  clan:
+#    description: "Use este comando para interagir com seu clan."
+#    aliases: [clans]
+#    usage: "/clan ajuda"
