@@ -2,7 +2,7 @@ package com.skydhs.czclan.clan.manager;
 
 import org.bukkit.ChatColor;
 
-public enum ClanRoles { // TODO, get the enum values from config file.
+public enum ClanRole { // TODO, get the enum values from config file.
     LEADER("Dono", "&4"),
     OFFICER("ADMIN", "&c"),
     MEMBER("MEMBRO", "&7");
@@ -10,7 +10,7 @@ public enum ClanRoles { // TODO, get the enum values from config file.
     private String translated;
     private String color;
 
-    ClanRoles(String translated, String color) {
+    ClanRole(String translated, String color) {
         this.translated = translated;
         this.color = color;
     }
@@ -27,19 +27,19 @@ public enum ClanRoles { // TODO, get the enum values from config file.
         return ChatColor.translateAlternateColorCodes('&', getRoleColor() + "" + getRoleTranslation());
     }
 
-    public boolean isAtLeast(ClanRoles role) {
+    public boolean isAtLeast(ClanRole role) {
         return this.ordinal() >= role.ordinal();
     }
 
-    public boolean isAtMost(ClanRoles role) {
+    public boolean isAtMost(ClanRole role) {
         return this.ordinal() <= role.ordinal();
     }
 
-    public boolean isLessThan(ClanRoles role) {
+    public boolean isLessThan(ClanRole role) {
         return this.ordinal() < role.ordinal();
     }
 
-    public boolean isMoreThan(ClanRoles role) {
+    public boolean isMoreThan(ClanRole role) {
         return this.ordinal() > role.ordinal();
     }
 }
