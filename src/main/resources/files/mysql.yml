@@ -1,0 +1,11 @@
+# Este plugin requer MySQL, caso esta opção abaixo esteja
+# desativada, Este plugin não iniciará.
+
+# MySQL
+MySQL:
+  enabled: false
+  host: ''
+  database: ''
+  username: ''
+  password: ''
+  port: 3306

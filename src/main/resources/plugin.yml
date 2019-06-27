@@ -5,7 +5,7 @@ author: SkyVox_
 website: skydhs.com
 
 # The Main class.
-main: com.skydhs.czclan.Core
+main: com.skydhs.czclan.clan.Core
 
 #commands:
 #  clan:

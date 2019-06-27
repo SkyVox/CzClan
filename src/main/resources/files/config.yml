@@ -1,0 +1,19 @@
+# Configurações dos Cargos.
+Roles:
+  # owner - representa o dono
+  # do clan.
+  owner:
+    name: "DONO" # Nome do cargo.
+    color: "&4" # Cor do cargo.
+
+  # officer - representa o adminstrador
+  # do clan.
+  officer:
+    name: "ADMIN"
+    color: "&c"
+
+  # member - representa os membros
+  # do clan.
+  member:
+    name: "MEMBRO"
+    color: "&7"
