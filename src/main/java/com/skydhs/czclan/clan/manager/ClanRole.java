@@ -14,7 +14,7 @@ public enum ClanRole { // TODO, get the enum values from config file.
         this.translated = translated;
         this.color = color;
     }
-
+    
     public String getRoleTranslation() {
         return translated;
     }

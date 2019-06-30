@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="CzClan">
+    <output-path>$USER_HOME$/Desktop/Test Server/plugins</output-path>
+    <root id="archive" name="CzClan.jar">
+      <element id="module-output" name="CzClan" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/src/main/resources/dependencies/HikariCP-3.1.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/src/main/resources/dependencies/slf4j-api-1.7.25.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
