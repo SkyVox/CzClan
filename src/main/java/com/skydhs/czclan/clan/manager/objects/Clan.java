@@ -32,12 +32,16 @@ public class Clan implements ClanAddon {
     private ClanStats stats;
 
     private List<ClanMember> members;
+    private List<ClanMember> topMembers;
 
     // ----- \\
     // Below: Clan Allies and Rivals
     // ----- \\
     private List<String> clanAllies;
     private List<String> clanRivals;
+
+    public Clan() { // TODO.
+    }
 
     /**
      * This constructor should be
@@ -62,8 +66,9 @@ public class Clan implements ClanAddon {
         this.friendlyFire = false;
         this.stats = new ClanStats();
         this.members = new ArrayList<>(ClanSettings.CLAN_MAX_MEMBERS);
-        this.clanAllies = new ArrayList<>(ClanSettings.CLAN_ALIASES_MAX);
-        this.clanRivals = new ArrayList<>(ClanSettings.CLAN_RIVALS_MAX);
+        this.topMembers = new ArrayList<>(ClanSettings.CLAN_MEMBER_LEADERBOARD_LIMIT);
+        this.clanAllies = new ArrayList<>(ClanSettings.CLAN_RELATIONS_SIZE);
+        this.clanRivals = new ArrayList<>(ClanSettings.CLAN_RELATIONS_SIZE);
     }
 
     public UUID getClanUniqueId() {
@@ -149,12 +154,21 @@ public class Clan implements ClanAddon {
         return members;
     }
 
-    public void addMember(ClanMember member) {
-        this.members.add(member);
+    public List<ClanMember> getTopMembers() {
+        return topMembers;
     }
 
-    public void addMember(UUID uuid, String name, ClanRole role, ZonedDateTime joined) {
-        this.members.add(new ClanMember(uuid, name, role, joined));
+    public boolean addMember(ClanMember member) {
+        if (this.members.size() >= ClanSettings.CLAN_MAX_MEMBERS) return false;
+        this.members.add(member);
+        return true;
+    }
+
+    public boolean addMember(UUID uuid, String name, ClanRole role, ZonedDateTime joined) {
+        if (this.members.size() >= ClanSettings.CLAN_MAX_MEMBERS) return false;
+        ClanMember member = new ClanMember(uuid, name, role, joined);
+        this.members.add(member);
+        return true;
     }
 
     public void removeMember(ClanMember member) {
@@ -187,12 +201,13 @@ public class Clan implements ClanAddon {
         return clanAllies;
     }
 
-    public void addAliases(Clan clan) {
+    public boolean addAliases(Clan clan) {
         String tag = clan.getUncoloredTag();
-        if (tag == null) return;
+        if (tag == null || this.clanAllies.size() >= ClanSettings.CLAN_RELATIONS_SIZE) return false;
 
         this.clanRivals.remove(tag);
         this.clanAllies.add(tag);
+        return true;
     }
 
     public boolean removeAliases(Clan clan) {
@@ -205,18 +220,50 @@ public class Clan implements ClanAddon {
         return clanRivals;
     }
 
-    public void addRivals(Clan clan) {
+    public boolean addRivals(Clan clan) {
         String tag = clan.getUncoloredTag();
-        if (tag == null) return;
+        if (tag == null || this.clanRivals.size() >= ClanSettings.CLAN_RELATIONS_SIZE) return false;
 
         this.clanAllies.remove(tag);
         this.clanRivals.add(tag);
+        return true;
     }
 
     public boolean removeRivals(Clan clan) {
         String tag = clan.getUncoloredTag();
         if (tag == null) return false;
         return clanRivals.remove(tag);
+    }
+
+    /**
+     * Send a private message for
+     * all clan members.
+     * @param message message to be sent.
+     */
+    public void sendMessage(final String message) {
+        String[] str = new String[1];
+        str[0] = message;
+        sendMessage(str);
+    }
+
+    /**
+     * Send a private message for
+     * all clan members.
+     * @param message message to be sent.
+     */
+    public void sendMessage(final String[] message) {
+        for (ClanMember members : getMembers()) {
+            for (String str : message) {
+                members.sendMessage(str);
+            }
+        }
+    }
+
+    /**
+     * This method will update
+     * {@link ClanMember}
+     */
+    public void updateTopMembers() { // TODO.
     }
 
     /**
@@ -242,6 +289,7 @@ public class Clan implements ClanAddon {
         boolean friendlyFire = (this.friendlyFire == clan.isFriendlyFire());
         boolean stats = this.stats.equals(clan.getClanStats());
         boolean members = this.getMembers().equals(clan.getMembers());
+        boolean topMembers = this.getTopMembers().equals(clan.getTopMembers());
         boolean clanAllies = this.clanAllies.equals(clan.getClanAllies());
         boolean clanRivals = this.clanRivals.equals(clan.getClanRivals());
 
@@ -253,7 +301,7 @@ public class Clan implements ClanAddon {
             description = StringUtils.equals(this.getDescription(), clan.getDescription());
         }
 
-        return uuid && creator && name && tag && description && created && home && friendlyFire && stats && members && clanAllies && clanRivals;
+        return uuid && creator && name && tag && description && created && home && friendlyFire && stats && members && topMembers && clanAllies && clanRivals;
     }
 
     @Override
@@ -269,6 +317,7 @@ public class Clan implements ClanAddon {
                 ", friendlyFire='" + friendlyFire + '\'' +
                 ", stats='" + stats + '\'' +
                 ", members='" + members + '\'' +
+                ", topMembers='" + topMembers + '\'' +
                 ", clanAllies='" + clanAllies + '\'' +
                 ", clanRivals='" + clanRivals + '\'' +
                 '}';
