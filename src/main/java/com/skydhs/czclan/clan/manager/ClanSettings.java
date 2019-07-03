@@ -29,4 +29,11 @@ public class ClanSettings {
      * by our database connection.
      */
     public static int CLAN_LEADERBOARD_LIMIT = 10;
+
+    /*
+     * Used on the update task.
+     * This value below is to
+     * determine the task timer.
+     */
+    public static int CLAN_DELAYED_UPDATE_TASK_MIN = 5;
 }

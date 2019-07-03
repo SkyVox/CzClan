@@ -1,11 +1,14 @@
 package com.skydhs.czclan.clan.database;
 
 import com.skydhs.czclan.clan.manager.ClanManager;
+import com.skydhs.czclan.clan.manager.ClanSettings;
 import com.skydhs.czclan.clan.manager.objects.Clan;
 import org.apache.commons.lang.Validate;
 
 import java.sql.*;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 public class DBConnection {
@@ -94,6 +97,48 @@ public class DBConnection {
     }
 
     /**
+     * Get top clans.
+     *
+     * @param column column to sort
+     *               the leaderboard.
+     *               available columns
+     *               {'kills', 'deaths',
+     *               'kdr'}.
+     * @return choosed leaderboard.
+     */
+    public List<Clan> getClanLeaderboard(final String column) {
+        List<Clan> ret = null;
+
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet result = null;
+        final String query = "SELECT * FROM `" + DBManager.CLAN_TABLE + "` ORDER BY `" + column + "` DESC LIMIT " + ClanSettings.CLAN_LEADERBOARD_LIMIT + ";";
+
+        try {
+            connection = getConnection();
+            preparedStatement = connection.prepareStatement(query);
+            result = preparedStatement.executeQuery();
+
+            if (result != null) {
+                ret = new LinkedList<>();
+
+                while (result.next()) {
+                    Object object = result.getObject(2);
+                    Clan clan = ClanManager.getManager().parseClanObject(object);
+                    if (clan == null) continue;
+                    ret.add(clan);
+                }
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        } finally {
+            closeConnections(connection, result, preparedStatement, null);
+        }
+
+        return ret;
+    }
+
+    /**
      * By calling this method
      * you'll get all stored
      * clans on our database.
@@ -127,7 +172,7 @@ public class DBConnection {
                     result.beforeFirst();
                 }
 
-                ret = new HashMap<>(size);
+                ret = new HashMap<>(size * (size / 2));
 
                 while (result.next()) {
                     try {

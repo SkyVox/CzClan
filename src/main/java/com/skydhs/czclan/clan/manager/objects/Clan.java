@@ -9,9 +9,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class Clan implements ClanAddon {
     private UUID uuid;
@@ -29,7 +27,7 @@ public class Clan implements ClanAddon {
      * kills, deaths and
      * many more.
      */
-    private ClanStats stats;
+    private GeneralStats stats;
 
     private List<ClanMember> members;
     private List<ClanMember> topMembers;
@@ -39,9 +37,6 @@ public class Clan implements ClanAddon {
     // ----- \\
     private List<String> clanAllies;
     private List<String> clanRivals;
-
-    public Clan() { // TODO.
-    }
 
     /**
      * This constructor should be
@@ -64,11 +59,18 @@ public class Clan implements ClanAddon {
         this.created = ZonedDateTime.now();
         this.home = null;
         this.friendlyFire = false;
-        this.stats = new ClanStats();
+        this.stats = new GeneralStats();
         this.members = new ArrayList<>(ClanSettings.CLAN_MAX_MEMBERS);
-        this.topMembers = new ArrayList<>(ClanSettings.CLAN_MEMBER_LEADERBOARD_LIMIT);
+        this.topMembers = new LinkedList<>();
         this.clanAllies = new ArrayList<>(ClanSettings.CLAN_RELATIONS_SIZE);
         this.clanRivals = new ArrayList<>(ClanSettings.CLAN_RELATIONS_SIZE);
+
+        /* Then, save this clan. */
+        save();
+    }
+
+    private void save() {
+        ClanManager.getManager().getLoadedClans().put(getUncoloredTag(), this);
     }
 
     public UUID getClanUniqueId() {
@@ -140,7 +142,7 @@ public class Clan implements ClanAddon {
         this.friendlyFire = value;
     }
 
-    public ClanStats getClanStats() {
+    public GeneralStats getClanStats() {
         return stats;
     }
 
@@ -155,7 +157,23 @@ public class Clan implements ClanAddon {
     }
 
     public List<ClanMember> getTopMembers() {
-        return topMembers;
+        return new ArrayList<>(topMembers);
+    }
+
+    public ClanMember getMember(UUID uuid) {
+        for (ClanMember members : getMembers()) {
+            if (StringUtils.equals(uuid.toString(), members.getUniqueId().toString())) return members;
+        }
+
+        return null;
+    }
+
+    public ClanMember getMember(String name) {
+        for (ClanMember members : getMembers()) {
+            if (StringUtils.equals(name, members.getName())) return members;
+        }
+
+        return null;
     }
 
     public boolean addMember(ClanMember member) {
@@ -263,7 +281,22 @@ public class Clan implements ClanAddon {
      * This method will update
      * {@link ClanMember}
      */
-    public void updateTopMembers() { // TODO.
+    public void updateTopMembers() {
+        List<ClanMember> members = new ArrayList<>(ClanSettings.CLAN_MEMBER_LEADERBOARD_LIMIT);
+
+        for (ClanMember member : getMembers()) {
+            members.add(member);
+            if (members.size() >= ClanSettings.CLAN_MEMBER_LEADERBOARD_LIMIT) break;
+        }
+
+        // Sort this list above by member kills.
+        Collections.sort(members);
+
+        getTopMembers().clear();
+
+        for (ClanMember member : members) {
+            this.topMembers.add(member);
+        }
     }
 
     /**
@@ -327,17 +360,25 @@ public class Clan implements ClanAddon {
      * This class below represents
      * the clan members.
      */
-    public class ClanMember {
+    public class ClanMember implements Comparable<ClanMember>{
         private UUID uuid;
         private String name;
         private ClanRole role;
         private ZonedDateTime joined;
+
+        /*
+         * Player stats.
+         * This value is reseted every
+         * time when he left a clan.
+         */
+        private GeneralStats stats;
 
         public ClanMember(UUID uuid, String name, ClanRole role, ZonedDateTime joined) {
             this.uuid = uuid;
             this.name = name;
             this.role = role;
             this.joined = joined;
+            this.stats = new GeneralStats();
         }
 
         public UUID getUniqueId() {
@@ -354,6 +395,10 @@ public class Clan implements ClanAddon {
 
         public ZonedDateTime getJoinedDate() {
             return joined;
+        }
+
+        public GeneralStats getPlayerStats() {
+            return stats;
         }
 
         public void sendMessage(final String message) {
@@ -373,8 +418,9 @@ public class Clan implements ClanAddon {
             boolean name = StringUtils.equals(this.name, clanMember.getName());
             boolean role = (this.role.equals(clanMember.getRole()));
             boolean joined = (this.getJoinedDate().toInstant().compareTo(clanMember.getJoinedDate().toInstant()) == 0);
+            boolean stats = this.stats.equals(clanMember.getPlayerStats());
 
-            return uuid && name && role && joined;
+            return uuid && name && role && joined && stats;
         }
 
         @Override
@@ -385,6 +431,12 @@ public class Clan implements ClanAddon {
                     ", role='" + role + '\'' +
                     ", joined='" + joined + '\'' +
                     '}';
+        }
+
+        @Override
+        public int compareTo(ClanMember value) {
+            if (value == null) return 0;
+            return this.getPlayerStats().getKills() - value.getPlayerStats().getKills();
         }
     }
 }

@@ -1,12 +1,39 @@
 package com.skydhs.czclan.clan.manager;
 
+import com.skydhs.czclan.clan.Core;
+import com.skydhs.czclan.clan.database.DBManager;
 import com.skydhs.czclan.clan.manager.objects.Clan;
 import org.bukkit.Location;
+import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.Map;
 import java.util.UUID;
 
 public class ClanManager {
     private static ClanManager manager;
+    private static ClanLeaderboard leaderboard;
+
+    private Map<String, Clan> loadedClans;
+
+    public ClanManager(Core core) {
+        this.loadedClans = DBManager.getDBManager().getDBConnection().getClans();
+
+        ClanManager.manager = this;
+        ClanManager.leaderboard = new ClanLeaderboard();
+
+        setupTask(core);
+    }
+
+    private void setupTask(Core core) {
+        final long time = 20*60*ClanSettings.CLAN_DELAYED_UPDATE_TASK_MIN;
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                // TODO, update clan and clan leaderboards.
+                leaderboard.updateLeaderboard();
+            }
+        }.runTaskTimerAsynchronously(core, time, time);
+    }
 
     public boolean isLocationEquals(Location one, Location two) {
         if (one == null || two == null) return false;
@@ -36,6 +63,19 @@ public class ClanManager {
      */
     public UUID generateId() {
         return UUID.randomUUID();
+    }
+
+    /**
+     * Get all loaded clans.
+     *
+     * @return
+     */
+    public Map<String, Clan> getLoadedClans() {
+        return loadedClans;
+    }
+
+    public static ClanLeaderboard getClanLeaderboard() {
+        return leaderboard;
     }
 
     public static ClanManager getManager() {
