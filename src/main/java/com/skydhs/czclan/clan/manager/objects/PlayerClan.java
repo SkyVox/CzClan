@@ -1,42 +1,179 @@
 package com.skydhs.czclan.clan.manager.objects;
 
 import com.skydhs.czclan.addon.clan.PlayerClanAddon;
+import com.skydhs.czclan.clan.database.DBManager;
+import com.skydhs.czclan.clan.manager.ClanManager;
 import com.sun.istack.internal.Nullable;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.entity.Player;
 
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 public class PlayerClan implements PlayerClanAddon {
     private Player player;
+    private String name;
+    private ZonedDateTime lastSeen;
 
-    @Nullable
+    // ----- \\
+    // Clan Information
+    // ----- \\
+    private String tag;
+
     private Clan clan;
-    @Nullable
     private Clan.ClanMember member;
+
+    public PlayerClan(String name, ZonedDateTime lastSeen, String tag) {
+        this.name = name;
+        this.lastSeen = lastSeen;
+        this.tag = tag;
+
+        if (tag != null && !tag.isEmpty()) {
+            this.clan = ClanManager.getManager().getLoadedClans().get(tag);
+            this.member = (clan == null ? null : clan.getMember(name));
+        }
+    }
+
+    public PlayerClan(Player player, String name, ZonedDateTime lastSeen, String tag) {
+        this.player = player;
+        this.name = name;
+        this.lastSeen = lastSeen;
+        this.tag = tag;
+
+        if (tag != null && !tag.isEmpty()) {
+            this.clan = ClanManager.getManager().getLoadedClans().get(tag);
+            this.member = (clan == null ? null : clan.getMember(name));
+        }
+    }
 
     public Player getPlayer() {
         return player;
     }
 
+    public String getPlayerName() {
+        return name;
+    }
+
+    public ZonedDateTime getLastSeen() {
+        return lastSeen;
+    }
+
+    public void setLastSeen(ZonedDateTime time) {
+        this.lastSeen = time;
+    }
+
+    public String getUncoloredTag() {
+        return tag;
+    }
+
+    @Nullable
+    public Clan getClan() {
+        return clan;
+    }
+
+    public void setPlayerClan(Clan clan) {
+        if (clan == null) {
+            this.tag = null;
+            this.clan = null;
+            this.member = null;
+            return;
+        }
+
+        this.tag = clan.getUncoloredTag();
+        this.clan = clan;
+        this.member = clan.getMember(name);
+    }
+
+    @Nullable
+    public Clan.ClanMember getClanMember() {
+        return member;
+    }
+
+    /**
+     * Check if @player is
+     * member of a clan
+     *
+     * @return if player has clan or not.
+     */
+    public boolean hasClan() {
+        return clan != null;
+    }
+
+    /**
+     * Send an private message
+     *
+     * @param message message to be sent.
+     */
     public void sendMessage(final String message) {
         if (player == null || !player.isOnline()) return;
         player.sendMessage(message);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof PlayerClan)) return false;
+        PlayerClan playerClan = (PlayerClan) obj;
+
+        boolean player = playerClan.player.equals(playerClan.getPlayer());
+        boolean name = StringUtils.equals(playerClan.name, playerClan.getPlayerName());
+        boolean lastSeen = (this.getLastSeen().toInstant().compareTo(playerClan.getLastSeen().toInstant()) == 0);
+        boolean tag = StringUtils.equals(this.tag, playerClan.getUncoloredTag());
+        boolean clan = this.clan.equals(playerClan.getClan());
+        boolean member = this.member.equals(playerClan.getClanMember());
+
+        return player && name && lastSeen && tag && clan && member;
+    }
+
+    @Override
+    public String toString() {
+        return "PlayerClan={" +
+                "player='" + player + '\'' +
+                ", name='" + name + '\'' +
+                ", lastSeen='" + lastSeen + '\'' +
+                ", tag='" + tag + '\'' +
+                ", clan='" + clan + '\'' +
+                ", member='" + member + '\'' +
+                '}';
+    }
+
+    /**
+     * Here all PlayerClan instances
+     * will be stored.
+     */
     public static class PlayerClanCache {
-        private static Map<UUID, PlayerClan> cache;
+        private static Map<String, PlayerClan> cache;
 
         static {
             cache = new HashMap<>(256);
         }
 
-        public static PlayerClan getPlayerClan(final UUID uuid) {
-            return getPlayerClanList().get(uuid);
+        public static PlayerClan getPlayerClan(final Player player) {
+            String name = player.getName();
+            if (getPlayerClanList().containsKey(name)) return getPlayerClanList().get(name);
+
+            PlayerClan playerClan = DBManager.getDBManager().getDBConnection().getPlayerClan(player);
+            getPlayerClanList().put(name, playerClan);
+            return playerClan;
         }
 
-        public static Map<UUID, PlayerClan> getPlayerClanList() {
+        public static PlayerClan getPlayerClan(final String name) {
+            if (getPlayerClanList().containsKey(name)) return getPlayerClanList().get(name);
+
+            PlayerClan playerClan = DBManager.getDBManager().getDBConnection().getPlayerClan(name);
+            getPlayerClanList().put(name, playerClan);
+            return playerClan;
+        }
+
+        /**
+         * Get playerClan
+         *
+         * Key = Player Name
+         * Value = @PlayerClan
+         *
+         * @return
+         */
+        public static Map<String, PlayerClan> getPlayerClanList() {
             return cache;
         }
     }

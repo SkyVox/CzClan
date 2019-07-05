@@ -38,6 +38,19 @@ public class Clan implements ClanAddon {
     private List<String> clanAllies;
     private List<String> clanRivals;
 
+    /*
+     * This field is required whenever
+     * the clan needs to be updated.
+     *
+     * true - If the clan needs to be
+     * updated.
+     *
+     * false - No changes was made,
+     * so we don't need to update
+     * this to db.
+     */
+    private Boolean update = false;
+
     /**
      * This constructor should be
      * called when you want
@@ -70,6 +83,7 @@ public class Clan implements ClanAddon {
     }
 
     private void save() {
+        this.update();
         ClanManager.getManager().getLoadedClans().put(getUncoloredTag(), this);
     }
 
@@ -127,6 +141,7 @@ public class Clan implements ClanAddon {
 
     public void setHome(Location value) {
         this.home = value;
+        this.update();
     }
 
     public void deleteHome() {
@@ -139,17 +154,90 @@ public class Clan implements ClanAddon {
 
     public void setFriendlyFire(boolean value) {
         if (friendlyFire == value) return;
+
         this.friendlyFire = value;
+        this.update();
     }
 
-    public GeneralStats getClanStats() {
-        return stats;
+    public double getCoins() {
+        return stats.getCoins();
+    }
+
+    public void addCoins(double value) {
+        if (value <= 0) return;
+        this.update();
+        stats.addCoins(value);
+    }
+
+    public void removeCoins(double value) {
+        if (value <= 0) return;
+        this.update();
+        stats.removeCoins(value);
+    }
+
+    public void setCoins(double value) {
+        if (value < 0) return;
+        this.update();
+        stats.setCoins(value);
+    }
+
+    public int getKills() {
+        return stats.getKills();
+    }
+
+    public void addKill(int value) {
+        if (value <= 0) return;
+        this.update();
+        stats.addKill(value);
+    }
+
+    public void removeKill(int value) {
+        if (value <= 0) return;
+        this.update();
+        stats.removeKill(value);
+    }
+
+    public void setKills(int value) {
+        if (value < 0) return;
+        this.update();
+        stats.setKills(value);
+    }
+
+    public int getDeaths() {
+        return stats.getDeaths();
+    }
+
+    public void addDeath(int value) {
+        if (value <= 0) return;
+        this.update();
+        stats.addDeath(value);
+    }
+
+    public void removeDeath(int value) {
+        if (value <= 0) return;
+        this.update();
+        stats.removeDeath(value);
+    }
+
+    public void setDeaths(int value) {
+        if (value < 0) return;
+        this.update();
+        stats.setDeaths(value);
+    }
+
+    public float getKDR() {
+        return stats.getKDR();
+    }
+
+    public String getFormattedKDR() {
+        return stats.getFormattedKDR();
     }
 
     public void resetClanStats() {
         this.stats.setCoins(0D);
         this.stats.setKills(0);
         this.stats.setDeaths(0);
+        this.update();
     }
 
     public List<ClanMember> getMembers() {
@@ -179,6 +267,7 @@ public class Clan implements ClanAddon {
     public boolean addMember(ClanMember member) {
         if (this.members.size() >= ClanSettings.CLAN_MAX_MEMBERS) return false;
         this.members.add(member);
+        this.update();
         return true;
     }
 
@@ -186,17 +275,20 @@ public class Clan implements ClanAddon {
         if (this.members.size() >= ClanSettings.CLAN_MAX_MEMBERS) return false;
         ClanMember member = new ClanMember(uuid, name, role, joined);
         this.members.add(member);
+        this.update();
         return true;
     }
 
     public void removeMember(ClanMember member) {
         this.members.remove(member);
+        this.update();
     }
 
     public void removeMember(UUID uuid) {
         for (ClanMember members : new ArrayList<>(getMembers())) {
             if (StringUtils.equals(uuid.toString(), members.getUniqueId().toString())) {
                 this.members.remove(members);
+                this.update();
                 break;
             }
         }
@@ -213,6 +305,8 @@ public class Clan implements ClanAddon {
                 this.members.remove(members);
             }
         }
+
+        this.update();
     }
 
     public List<String> getClanAllies() {
@@ -225,12 +319,14 @@ public class Clan implements ClanAddon {
 
         this.clanRivals.remove(tag);
         this.clanAllies.add(tag);
+        this.update();
         return true;
     }
 
     public boolean removeAliases(Clan clan) {
         String tag = clan.getUncoloredTag();
         if (tag == null) return false;
+        this.update();
         return clanAllies.remove(tag);
     }
 
@@ -244,12 +340,14 @@ public class Clan implements ClanAddon {
 
         this.clanAllies.remove(tag);
         this.clanRivals.add(tag);
+        this.update();
         return true;
     }
 
     public boolean removeRivals(Clan clan) {
         String tag = clan.getUncoloredTag();
         if (tag == null) return false;
+        this.update();
         return clanRivals.remove(tag);
     }
 
@@ -300,11 +398,41 @@ public class Clan implements ClanAddon {
     }
 
     /**
+     * Always when changes
+     * was made on the clan
+     * this method should
+     * be called.
+     */
+    public void update() {
+        if (update) return;
+        this.update = true;
+    }
+
+    public Boolean isUpdate() {
+        return update;
+    }
+
+    public void setUpdate(boolean value) {
+        this.update = value;
+    }
+
+    /**
      * By calling this method this
      * clan will be completely
      * deleted from our system.
      */
-    public void delete() { // TODO.
+    public void delete() {
+        ClanManager.getManager().getLoadedClans().remove(getUncoloredTag());
+        ClanManager.getManager().getDeletedClans().add(getUncoloredTag());
+
+        for (ClanMember members : getMembers()) {
+            PlayerClan playerClan = PlayerClan.PlayerClanCache.getPlayerClan(members.getName());
+            if (playerClan == null) continue;
+
+            // TODO...
+        }
+
+        sendMessage("Clan disbanded.  // REMOVE THIS."); // TODO, Get this message from config file.
     }
 
     @Override
@@ -320,7 +448,7 @@ public class Clan implements ClanAddon {
         boolean created = (this.getCreatedDate().toInstant().compareTo(clan.getCreatedDate().toInstant()) == 0);
         boolean home = ClanManager.getManager().isLocationEquals(this.home, clan.getHome());
         boolean friendlyFire = (this.friendlyFire == clan.isFriendlyFire());
-        boolean stats = this.stats.equals(clan.getClanStats());
+        boolean stats = this.stats.equals(clan.stats);
         boolean members = this.getMembers().equals(clan.getMembers());
         boolean topMembers = this.getTopMembers().equals(clan.getTopMembers());
         boolean clanAllies = this.clanAllies.equals(clan.getClanAllies());
@@ -402,7 +530,7 @@ public class Clan implements ClanAddon {
         }
 
         public void sendMessage(final String message) {
-            PlayerClan playerClan = PlayerClan.PlayerClanCache.getPlayerClan(uuid);
+            PlayerClan playerClan = PlayerClan.PlayerClanCache.getPlayerClanList().get(name);
             if (playerClan == null) return;
 
             /* Send the message to {link@uuid} */

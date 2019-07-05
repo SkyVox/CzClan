@@ -1,11 +1,12 @@
 package com.skydhs.czclan.clan.manager;
 
+import com.skydhs.czclan.clan.FileUtils;
 import org.bukkit.ChatColor;
 
-public enum ClanRole { // TODO, get the enum values from config file.
-    LEADER("Dono", "&4"),
-    OFFICER("ADMIN", "&c"),
-    MEMBER("MEMBRO", "&7");
+public enum ClanRole {
+    LEADER(FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.owner.name").get(), FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.owner.color").get()),
+    OFFICER(FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.officer.name").get(), FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.officer.color").get()),
+    MEMBER(FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.member.name").get(), FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.member.color").get());
 
     private String translated;
     private String color;

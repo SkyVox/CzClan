@@ -10,8 +10,8 @@ public class DBManager {
     private static DBManager manager;
     public static DBManager getDBManager() { return manager; }
 
-    static final String CLAN_TABLE = "skyclan";
-    static final String PLAYERCLAN_TABLE = "playerclan";
+    public static final String CLAN_TABLE = "skyclan";
+    public static final String PLAYERCLAN_TABLE = "playerclan";
 
     private HikariDataSource hikari;
     private DBConnection connection;
