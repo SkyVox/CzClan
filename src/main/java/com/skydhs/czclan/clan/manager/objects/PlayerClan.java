@@ -24,6 +24,17 @@ public class PlayerClan implements PlayerClanAddon {
     private Clan clan;
     private Clan.ClanMember member;
 
+    /*
+     * @pendingInvites will store all
+     * invitations to this player.
+     *
+     * Key = Player Name
+     * Value = Long, this is the time
+     *   if this value is >= than 5 minutes
+     *   we can delete this invite.
+     */
+    private Map<String, ZonedDateTime> pendingInvites;
+
     public PlayerClan(String name, ZonedDateTime lastSeen, String tag) {
         this.name = name;
         this.lastSeen = lastSeen;
@@ -53,6 +64,11 @@ public class PlayerClan implements PlayerClanAddon {
 
     public String getPlayerName() {
         return name;
+    }
+
+    public Boolean isPlayerOnline() {
+        if (player == null) return false;
+        return player.isOnline();
     }
 
     public ZonedDateTime getLastSeen() {
@@ -100,6 +116,21 @@ public class PlayerClan implements PlayerClanAddon {
         return clan != null;
     }
 
+    public Map<String, ZonedDateTime> getPendingInvites() {
+        return pendingInvites;
+    }
+
+    public Boolean hasPendingInvites() {
+        return pendingInvites != null && pendingInvites.size() > 0;
+    }
+
+    public void invitePlayer(Clan clan) {
+        if (hasClan()) return;
+
+        getPendingInvites().put(clan.getUncoloredTag(), ZonedDateTime.now());
+        sendMessage("You were invited to: '" + clan.getColoredTag() + "' You have 5 minutes to accept. // DELETE THIS."); // TODO, get this message from Configuration file.
+    }
+
     /**
      * Send an private message
      *
@@ -108,6 +139,13 @@ public class PlayerClan implements PlayerClanAddon {
     public void sendMessage(final String message) {
         if (player == null || !player.isOnline()) return;
         player.sendMessage(message);
+    }
+
+    public void delete() {
+        // Delete this player from our database.
+        DBManager.getDBManager().getDBConnection().delete(getPlayerName(), DBManager.PLAYERCLAN_TABLE, "player_name");
+        // Then remove him from our cache.
+        PlayerClan.PlayerClanCache.getPlayerClanList().remove(getPlayerName());
     }
 
     @Override
@@ -148,11 +186,23 @@ public class PlayerClan implements PlayerClanAddon {
             cache = new HashMap<>(256);
         }
 
+        public static void loadPlayer(final Player player) {
+            String name = player.getName();
+            if (getPlayerClanList().containsKey(name)) return;
+
+            PlayerClan playerClan = DBManager.getDBManager().getDBConnection().getPlayerClan(player);
+            if (playerClan == null) playerClan = new PlayerClan(player, player.getName(), ZonedDateTime.now(), null);
+
+            getPlayerClanList().put(name, playerClan);
+        }
+
         public static PlayerClan getPlayerClan(final Player player) {
             String name = player.getName();
             if (getPlayerClanList().containsKey(name)) return getPlayerClanList().get(name);
 
             PlayerClan playerClan = DBManager.getDBManager().getDBConnection().getPlayerClan(player);
+            if (playerClan == null) playerClan = new PlayerClan(player, player.getName(), ZonedDateTime.now(), null);
+
             getPlayerClanList().put(name, playerClan);
             return playerClan;
         }
@@ -161,6 +211,8 @@ public class PlayerClan implements PlayerClanAddon {
             if (getPlayerClanList().containsKey(name)) return getPlayerClanList().get(name);
 
             PlayerClan playerClan = DBManager.getDBManager().getDBConnection().getPlayerClan(name);
+            if (playerClan == null) playerClan = new PlayerClan(name, ZonedDateTime.now(), null);
+
             getPlayerClanList().put(name, playerClan);
             return playerClan;
         }

@@ -36,4 +36,11 @@ public class ClanSettings {
      * determine the task timer.
      */
     public static int CLAN_DELAYED_UPDATE_TASK_MIN = 5;
+
+    /*
+     * Time in minutes to delete
+     * the pending clan invitation
+     * for a player.
+     */
+    public static int CLAN_PLAYER_INVITE_EXPIRATION_TIME = 5;
 }
