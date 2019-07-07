@@ -55,8 +55,8 @@ public class FileUtils {
         return new StringReplace(getFile(file).get().getString(path));
     }
 
-    public List<String> getStringList(Files file, String path) {
-        return getFile(file).get().getStringList(path);
+    public ListReplace getStringList(Files file, String path) {
+        return new ListReplace(getFile(file).get().getStringList(path));
     }
 
     public Set<String> getSection(Files file, String path) {
@@ -119,7 +119,7 @@ public class FileUtils {
         }
     }
 
-    private class FileManager {
+    public class FileManager {
         private Files file;
         private File pdfile;
         private FileConfiguration language;
@@ -231,6 +231,10 @@ public class FileUtils {
             return str;
         }
 
+        public String getColored() {
+            return ChatColor.translateAlternateColorCodes('&', str);
+        }
+
         public String getString(String[] placeholders, String[] replaces) {
             return setPlaceholder(placeholders, replaces);
         }
@@ -247,6 +251,55 @@ public class FileUtils {
             }
 
             return str;
+        }
+    }
+
+    public class ListReplace {
+        private String[] str;
+
+        public ListReplace(String[] str) {
+            this.str = str;
+        }
+
+        public ListReplace(List<String> list) {
+            this.str = new String[list.size()];
+
+            for (int i = 0; i < list.size(); i++) {
+                this.str[i] = list.get(i);
+            }
+        }
+
+        public String[] get() {
+            return str;
+        }
+
+        public String[] getColored() {
+            String[] ret = new String[str.length];
+
+            for (int i = 0; i < str.length; i++) {
+                ret[i] = ChatColor.translateAlternateColorCodes('&', str[i]);
+            }
+
+            return ret;
+        }
+
+        public String[] getList(String[] placeholders, String[] replaces) {
+            return setPlaceholder(placeholders, replaces);
+        }
+
+        private String[] setPlaceholder(String[] placeholders, String[] replaces) {
+            if (str == null || str.length <= 0) return str;
+
+            // Create new instance.
+            String[] ret = new String[str.length];
+
+            if (placeholders != null && replaces != null && placeholders.length == replaces.length) {
+                for (int i = 0; i < str.length; i++) {
+                    ret[i] = ChatColor.translateAlternateColorCodes('&', StringUtils.replaceEach(str[i], placeholders, replaces));
+                }
+            }
+
+            return ret;
         }
     }
 }

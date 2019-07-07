@@ -20,3 +20,45 @@ Roles:
   member:
     name: "MEMBRO"
     color: "&7"
+
+Messages: {}
+
+# Mensagens dos comandos.
+Commands:
+  only-players: "&cApenas jogadores podem executar este comando."
+
+  # Help-me.
+  help:
+    - '&6-------------------------'
+    - ''
+    - '&aComandos do Clan:'
+    - '&e/clan &b: Abrir menu principal.'
+    - '&e/clan criar/create &b: Criar novo clan.'
+    - '&e/clan top &b: Ver a lista dos melhores clans.'
+    - '&e/clan jogador/perfil/player <jogador> &b: Ver informações do jogador.'
+    - '&e/clan clan <tag> &b: Ver informações do clan.'
+    - '&e/clan rivalidades/rivals &b: Ver lista de rivalidades.'
+    - '&e/clan aliancas/alianças/allies &b: Ver lista de aliados.'
+    - '&e/clan membros/members &b: Ver membros do clan.'
+    - '&e/clan promover/promote <jogador> &b: Promover um jogador.'
+    - '&e/clan rebaixar/demote <jogador> &b: Rebaixar o cargo de um jogador.'
+    - '&e/clan lista/list &b: Ver a lista de clans criados.'
+    - '&e/clan convidar/invite &b: Convidar um jogador para o clan.'
+    - '&e/clan expulsar/kick <jogador> &b: Expulsar um jogador do clan.'
+    - '&e/clan desfazer/excluir/delete &b: Deleter o clan.'
+    - '&e/clan aliado/ally (add/adicionar&7-&eremover/del) &b: Adicionar/Remover um aliado.'
+    - '&e/clan rival (add/adicionar&7-&eremover/del) &b: Adicionar/Remover um rival.'
+    - '&e/clan pvp &b: Ativar/Desativar pvp entre os membros do clan.'
+    - ''
+    - '&6-------------------------'
+
+# Formatação de números.
+NumberFormat:
+  thousand: "k"
+  million: "m"
+  billion: "b"
+  trillion: "t"
+  quadrillion: "q"
+  quintillion: "q"
+  # Você pode adicionar
+  # mais formatações abaixo.

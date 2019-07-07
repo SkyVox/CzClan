@@ -7,8 +7,11 @@ website: skydhs.com
 # The Main class.
 main: com.skydhs.czclan.clan.Core
 
-#commands:
-#  clan:
-#    description: "Use este comando para interagir com seu clan."
-#    aliases: [clans]
-#    usage: "/clan ajuda"
+commands:
+  clan:
+    description: "Use este comando para interagir com seu clan."
+    usage: "/clan ajuda"
+  clanadmin:
+    description: "Use este comando para interagir com os clans."
+    aliases: "ca"
+    usage: "/clan ajuda"
