@@ -1,39 +1,45 @@
 package com.skydhs.czclan.clan.database;
 
 import com.zaxxer.hikari.HikariDataSource;
-import org.bukkit.configuration.file.FileConfiguration;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
 public class DBManager {
     private static DBManager manager;
-    public static DBManager getDBManager() { return manager; }
 
+    /*
+     * Database table names.
+     */
     public static final String CLAN_TABLE = "skyclan";
-    public static final String PLAYERCLAN_TABLE = "playerclan";
+    public static final String CLAN_MEMBERS = "clanmember";
 
-    private HikariDataSource hikari;
     private DBConnection connection;
+    private HikariDataSource hikari;
 
-    public DBManager(FileConfiguration file) {
+    private Boolean enabled = false;
+
+    public DBManager() {
         manager = this;
         this.connection = new DBConnection();
-
-        enable(file);
-        DBConnection.setupTable();
     }
 
-    private void enable(FileConfiguration file) {
+    public void enable(String host, int port, String database, String user, String password) {
         this.hikari = new HikariDataSource();
 
         hikari.setDataSourceClassName("com.mysql.jdbc.jdbc2.optional.MysqlDataSource");
-        hikari.addDataSourceProperty("serverName", file.getString("MySQL.host"));
-        hikari.addDataSourceProperty("port", file.getInt("MySQL.port"));
-        hikari.addDataSourceProperty("databaseName", file.getString("MySQL.database"));
-        hikari.addDataSourceProperty("user", file.getString("MySQL.username"));
-        hikari.addDataSourceProperty("password", file.getString("MySQL.password"));
+        hikari.addDataSourceProperty("serverName", host);
+        hikari.addDataSourceProperty("port", port);
+        hikari.addDataSourceProperty("databaseName", database);
+        hikari.addDataSourceProperty("user", user);
+        hikari.addDataSourceProperty("password", password);
         hikari.setMaximumPoolSize(10);
+
+        // Then, setup our table.
+        DBConnection.setupTable();
+
+        // Update @enabled.
+        this.enabled = true;
     }
 
     /**
@@ -45,7 +51,12 @@ public class DBManager {
             if (hikari != null) {
                 hikari.close();
             }
+            this.enabled = false;
         } catch (Exception ex) {}
+    }
+
+    public Boolean isEnabled() {
+        return enabled;
     }
 
     /**
@@ -66,5 +77,9 @@ public class DBManager {
      */
     public DBConnection getDBConnection() {
         return connection;
+    }
+
+    public static DBManager getDBManager() {
+        return manager;
     }
 }

@@ -1,8 +1,11 @@
 package com.skydhs.czclan.clan.commands;
 
 import com.skydhs.czclan.clan.FileUtils;
-import com.skydhs.czclan.clan.manager.objects.PlayerClan;
+import com.skydhs.czclan.clan.manager.ClanManager;
+import com.skydhs.czclan.clan.manager.objects.Clan;
+import com.skydhs.czclan.clan.manager.objects.ClanMember;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -18,15 +21,13 @@ public class ClanCmd implements CommandExecutor {
         }
 
         Player player = (Player) sender;
-        PlayerClan playerClan = PlayerClan.PlayerClanCache.getPlayerClan(player);
+        ClanMember member = ClanManager.getManager().getMember(player.getName());
 
         if (args.length <= 0) {
             // TODO opens the main menu.;
 
-            if (playerClan.hasClan()) {
-
+            if (member == null || !member.hasClan()) {
             } else {
-
             }
 
             return true;
@@ -48,6 +49,26 @@ public class ClanCmd implements CommandExecutor {
             case "CRIAR":
             case "CREATE":
                 executed = true;
+
+                if (member == null || !member.hasClan()) {
+                    player.sendMessage("1- You don't has any clan.");
+                } else {
+                    player.sendMessage("You have clan! =), tag: '" + member.getTag() + "'.");
+                    player.sendMessage("Date that you joined: " + member.getJoinedDate().toInstant());
+                }
+
+                if (ClanManager.getManager().isClan("Sky")) {
+                    player.sendMessage("This clan already exists.");
+                    return true;
+                }
+
+                Clan clan = new Clan(player, member, "Test", "&3&lSky", null);
+                clan.sendMessage(ChatColor.GREEN + "+" + player.getName() + " joined on this clan.");
+
+//                Clan clan = new Clan("SkyVox_", player.getUniqueId(), "Test", "&3&lSky", null);
+//                clan.addMember(player.getUniqueId(), player.getName(), ClanRole.LEADER, ZonedDateTime.now());
+                player.sendMessage("You joined!!!!!!!!!");
+
                 break;
             case "TOP":
                 executed = true;

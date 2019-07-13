@@ -1,6 +1,5 @@
 package com.skydhs.czclan.clan.manager.format;
 
-import com.skydhs.czclan.clan.FileUtils;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.math.BigInteger;
@@ -12,8 +11,8 @@ public class NumberFormat {
     private final List<String> NAMES = new LinkedList<>();
 
     public NumberFormat(FileConfiguration file) {
-        for (String str : FileUtils.get().getSection(FileUtils.Files.CONFIG, "NumberFormat")) {
-            NAMES.add(FileUtils.get().getString(FileUtils.Files.CONFIG, "NumberFormat." + str).get());
+        for (String str : file.getConfigurationSection("NumberFormat").getKeys(false)) {
+            NAMES.add(file.getString("NumberFormat." + str));
         }
 
         for (int i = 0; i < NAMES.size(); i++) {

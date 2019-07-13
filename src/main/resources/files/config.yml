@@ -1,5 +1,34 @@
 # Clan settings.
-#Settings: {}
+Settings:
+  # Tempo para sincronizar
+  # servidor - database.
+  update-interval: 5 # Em minutos.
+
+  # Abaixo está a configuração
+  # dos clans.
+
+  # Quantidade máxima de jogadores
+  # por clan.
+  clan-max-members: 32
+
+  # Classificação entre os
+  # jogadores do mesmo clan,
+  # quantidade de membros
+  # que será apresentado.
+  member-leaderboard-limit: 3;
+
+  # Máximo de aliado e/ou
+  # rival que o clan pode ter.
+  clan-relations-size: 10
+
+  # Classificação entre os
+  # clans do servidor,
+  # quantos clans
+  # será apresentado.
+  clan-leaderboad-limit: 10
+
+  # Tempo para expirar convites.
+  invite-expiration-time: 5 # Em minutos.
 
 # Configurações dos Cargos.
 Roles:

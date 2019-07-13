@@ -4,16 +4,30 @@ import com.skydhs.czclan.clan.FileUtils;
 import org.bukkit.ChatColor;
 
 public enum ClanRole {
-    LEADER(FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.owner.name").get(), FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.owner.color").get()),
-    OFFICER(FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.officer.name").get(), FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.officer.color").get()),
-    MEMBER(FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.member.name").get(), FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.member.color").get());
+    LEADER('0', FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.owner.name").get(), FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.owner.color").get()),
+    OFFICER('1', FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.officer.name").get(), FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.officer.color").get()),
+    MEMBER('2', FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.member.name").get(), FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.member.color").get());
 
+    private char id;
     private String translated;
     private String color;
 
-    ClanRole(String translated, String color) {
+    ClanRole(char id, String translated, String color) {
+        this.id = id;
         this.translated = translated;
         this.color = color;
+    }
+
+    public static ClanRole getById(char id) {
+        for (ClanRole value : ClanRole.values()) {
+            if (value.getId() == id) return value;
+        }
+
+        return null;
+    }
+
+    public char getId() {
+        return id;
     }
     
     public String getRoleTranslation() {

@@ -3,8 +3,12 @@ package com.skydhs.czclan.clan.manager;
 import com.skydhs.czclan.clan.Core;
 import com.skydhs.czclan.clan.database.DBManager;
 import com.skydhs.czclan.clan.manager.objects.Clan;
-import com.skydhs.czclan.clan.manager.objects.PlayerClan;
+import com.skydhs.czclan.clan.manager.objects.ClanMember;
+import org.apache.commons.lang.StringUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.time.Duration;
@@ -18,12 +22,15 @@ public class ClanManager {
     private Map<String, Clan> loadedClans;
     private Set<String> deletedClans;
 
-    public ClanManager(Core core) {
-        this.loadedClans = DBManager.getDBManager().getDBConnection().getClans();
-        this.deletedClans = new HashSet<>(64);
+    private Map<String, ClanMember> loadedMembers;
 
+    public ClanManager(Core core) {
         ClanManager.manager = this;
         ClanManager.leaderboard = new ClanLeaderboard();
+
+        this.loadedClans = DBManager.getDBManager().getDBConnection().getClans();
+        this.deletedClans = new HashSet<>(64);
+        this.loadedMembers = new HashMap<>(512);
 
         setupTask(core);
     }
@@ -42,7 +49,7 @@ public class ClanManager {
             public void run() {
                 update();
             }
-        }.runTaskTimerAsynchronously(core, time, time);
+        }.runTaskTimerAsynchronously(core, 20, time);
     }
 
     /**
@@ -70,63 +77,62 @@ public class ClanManager {
         // Update clan leaderboard.
         leaderboard.updateLeaderboard();
 
-        for (String str : new HashMap<String, PlayerClan>(PlayerClan.PlayerClanCache.getPlayerClanList()).keySet()) {
-            PlayerClan playerClan = PlayerClan.PlayerClanCache.getPlayerClanList().get(str);
+        for (String name : new HashMap<String, ClanMember>(getLoadedMembers()).keySet()) {
+            ClanMember member = getLoadedMembers().get(name);
 
-            if (playerClan == null) {
+            if (member == null) {
                 // Delete this player from our database.
-                DBManager.getDBManager().getDBConnection().delete(str, DBManager.PLAYERCLAN_TABLE, "player_name");
+                DBManager.getDBManager().getDBConnection().delete(name, DBManager.CLAN_MEMBERS, "name");
                 // Then remove him from our cache.
-                PlayerClan.PlayerClanCache.getPlayerClanList().remove(str);
-                continue;
-            }
+                getLoadedMembers().remove(name);
+            } else {
+                /*
+                 * Verify if this player has some
+                 * pending clan invitations.
+                 */
+                if (member.hasPendingInvites()) {
+                    ZonedDateTime now = ZonedDateTime.now();
+                    Map<String, ZonedDateTime> invitations = new HashMap<>(member.getPendingInvites());
+                    int expired = 0;
 
-            /*
-             * Verify if this player has some
-             * pending clan invitations.
-             */
-            if (playerClan.hasPendingInvites()) {
-                ZonedDateTime now = ZonedDateTime.now();
-                Map<String, ZonedDateTime> invitations = new HashMap<>(playerClan.getPendingInvites());
-                int expired = 0;
+                    for (String tag : invitations.keySet()) {
+                        ZonedDateTime inviteTime = invitations.get(tag);
+                        inviteTime.plusMinutes(ClanSettings.CLAN_PLAYER_INVITE_EXPIRATION_TIME);
 
-                for (String tag : invitations.keySet()) {
-                    ZonedDateTime inviteTime = invitations.get(tag);
-                    inviteTime.plusMinutes(ClanSettings.CLAN_PLAYER_INVITE_EXPIRATION_TIME);
-
-                    Duration duration = Duration.between(inviteTime, now);
-                    if (duration.toMinutes() >= 1) {
-                        // This invite has expired.
-                        playerClan.getPendingInvites().remove(tag);
-                        expired+=1;
+                        Duration duration = Duration.between(inviteTime, now);
+                        if (duration.toMinutes() >= 1) {
+                            // This invite has expired.
+                            member.getPendingInvites().remove(tag);
+                            expired+=1;
+                        }
                     }
+
+                    if (expired >= invitations.size()) {
+                        // Then remove him.
+                        if (!member.hasClan()) {
+                            getLoadedMembers().remove(name);
+                        }
+                    }
+
+                    continue;
                 }
 
-                if (expired >= invitations.size()) {
-                    // Then remove him.
-                    if (!playerClan.hasClan()) {
-                        playerClan.delete();
-                    }
+                /*
+                 * If this player doesn't has
+                 * clan, we don't need him
+                 * on our cache.
+                 */
+                if (!member.hasClan()) {
+                    getLoadedMembers().remove(name);
+                    continue;
                 }
 
-                continue;
-            }
+                // Then, update this player to DB.
+                DBManager.getDBManager().getDBConnection().updateMember(member);
 
-            /*
-             * If this player doesn't has
-             * clan, we don't need him
-             * on our cache.
-             */
-            if (!playerClan.hasClan()) {
-                playerClan.delete();
-                continue;
-            }
-
-            // Then, update this player to DB.
-            DBManager.getDBManager().getDBConnection().updatePlayer(str, playerClan);
-
-            if (!playerClan.isPlayerOnline()) {
-                PlayerClan.PlayerClanCache.getPlayerClanList().remove(str);
+                if (!member.isOnline()) {
+                    member.unload();
+                }
             }
         }
     }
@@ -136,6 +142,151 @@ public class ClanManager {
         return one.getBlockX() == two.getBlockX() && one.getBlockY() == two.getBlockY() && one.getBlockZ() == two.getBlockZ();
     }
 
+    public String serializeLocation(Location location) throws NullPointerException {
+        if (location == null) return null;
+
+        StringBuilder str = new StringBuilder(4);
+        str.append(location.getWorld().getName()); // Add our world name.
+        str.append("#" + location.getX()); // Add the 'x' point.
+        str.append("#" + location.getY()); // Add the 'y' point.
+        str.append("#" + location.getZ()); // Add the 'z' point.
+
+        return str.toString();
+    }
+
+    public Location deserializeLocation(String location) throws NullPointerException {
+        if (location == null || StringUtils.containsIgnoreCase(location, "null")) return null;
+
+        String[] locationSplit = location.split("#");
+        double x = Double.parseDouble(locationSplit[1]);
+        double y = Double.parseDouble(locationSplit[2]);
+        double z = Double.parseDouble(locationSplit[3]);
+
+        return new Location(Bukkit.getWorld(String.valueOf(locationSplit[0])), x, y, z);
+    }
+
+    public StringBuilder getClanMembers(List<ClanMember> members) {
+        StringBuilder ret = new StringBuilder(members.size());
+
+        for (int i = 0; i < members.size(); i++) {
+            ClanMember member = members.get(i);
+            ret.append(member.getUniqueId().toString());
+
+            if ((i+1) < members.size()) ret.append(", ");
+        }
+
+        return ret;
+    }
+
+    public List<ClanMember> getClanMembers(String members) {
+        String[] member = members.split(", ");
+        List<ClanMember> ret = new ArrayList<>(ClanSettings.CLAN_MAX_MEMBERS);
+
+        for (int i = 0; i < member.length; i++) {
+            String str = member[i];
+            if (str == null || str.isEmpty()) continue;
+            ret.add(DBManager.getDBManager().getDBConnection().getClanMember(str, AccessType.UUID));
+        }
+
+        return ret;
+    }
+
+    public StringBuilder getClanRelations(List<String> value) {
+        StringBuilder ret = new StringBuilder(value.size());
+
+        for (int i = 0; i < value.size(); i++) {
+            String str = value.get(i);
+            ret.append(str);
+
+            if ((i+1) < value.size()) ret.append(", ");
+        }
+
+        return ret;
+    }
+
+    public List<String> getClanRelations(String value) {
+        List<String> ret = new ArrayList<>(ClanSettings.CLAN_RELATIONS_SIZE);
+        String[] split = value.split(", ");
+
+        for (int i = 0; i < split.length; i++) {
+            String str = split[i];
+            if (str == null || str.isEmpty()) continue;
+            ret.add(str);
+        }
+
+        return ret;
+    }
+
+    public ClanMember loadPlayer(Player player) {
+        for (Clan clans : getLoadedClans().values()) {
+            for (ClanMember member : clans.getMembers()) {
+                if (StringUtils.equals(player.getUniqueId().toString(), member.getUniqueId().toString())) {
+                    member.setPlayer(player);
+                    member.cache();
+                    return member;
+                }
+            }
+        }
+
+        ClanMember ret = DBManager.getDBManager().getDBConnection().getClanMember(player.getName(), AccessType.NAME);
+        if (ret == null) return null;
+
+        ret.setPlayer(player);
+        ret.cache();
+        return ret;
+    }
+
+    public void unloadPlayer(Player player) {
+        ClanMember member = getLoadedMembers().get(player.getName());
+        if (member == null) return;
+
+        member.setPlayer(null);
+    }
+
+    public ClanMember getMember(final String name) {
+        if (getLoadedMembers().containsKey(name)) return getLoadedMembers().get(name);
+
+        for (Clan clans : getLoadedClans().values()) {
+            for (ClanMember member : clans.getMembers()) {
+                if (StringUtils.equals(name, member.getName())) {
+                    member.cache();
+                    return member;
+                }
+            }
+        }
+
+        ClanMember ret = DBManager.getDBManager().getDBConnection().getClanMember(name, AccessType.NAME);
+        if (ret == null) return null;
+
+        ret.cache();
+        return ret;
+    }
+
+    /**
+     * Get a specific clan.
+     *
+     * @param tag Tag do search.
+     * @return
+     */
+    public Clan getClan(final String tag) {
+        if (tag == null) return null;
+
+        String searchTag = ChatColor.stripColor(tag);
+        return getLoadedClans().get(searchTag);
+    }
+
+    /**
+     * Verify if the given
+     * tag is from a valid
+     * clan.
+     *
+     * @param tag Clan tag
+     * @return if this tag is a valid clan.
+     */
+    public boolean isClan(String tag) {
+        return getLoadedClans().get(tag) != null;
+    }
+
     /**
      * Verify if the given {@link Object}
      * is a valid clan object.
@@ -143,7 +294,7 @@ public class ClanManager {
      * @param obj obj to be parse.
      * @return clan object.
      */
-    public Clan parseClanObject(Object obj) {
+    public Clan parseClan(Object obj) {
         if (!(obj instanceof Clan)) return null;
         return (Clan) obj;
     }
@@ -182,6 +333,24 @@ public class ClanManager {
      */
     public Set<String> getDeletedClans() {
         return deletedClans;
+    }
+
+    /**
+     * Get all cached members.
+     * Once someone search for
+     * a specific player, this
+     * player will be cached on
+     * this map.
+     * Every 'x' minutes it'll be
+     * cleared.
+     *
+     * Key = Player name.
+     * Value = {@link ClanMember}
+     *
+     * @return
+     */
+    public Map<String, ClanMember> getLoadedMembers() {
+        return loadedMembers;
     }
 
     public static ClanLeaderboard getClanLeaderboard() {

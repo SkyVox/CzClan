@@ -7,6 +7,7 @@ import com.skydhs.czclan.clan.manager.ClanSettings;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -19,7 +20,7 @@ public class Clan implements ClanAddon {
     private String tag;
     private String description;
     private ZonedDateTime created;
-    private Location home;
+    private Location base;
     private Boolean friendlyFire;
 
     /* This is the clan stats
@@ -52,25 +53,40 @@ public class Clan implements ClanAddon {
     private Boolean update = false;
 
     /**
+     * Used to load clans.
+     *
+     * @param name
+     * @param tag
+     * @param description
+     * @param created
+     */
+    public Clan(String name, String tag, String description, ZonedDateTime created) {
+        this.name = name;
+        this.tag = (tag == null ? null : ChatColor.translateAlternateColorCodes('&', tag));
+        this.description = description;
+        this.created = created;
+    }
+
+    /**
      * This constructor should be
      * called when you want
      * to create a new clan.
      *
-     * @param creatorName
-     * @param creator
-     * @param name
-     * @param tag
-     * @param description
+     * @param player creator - leader
+     * @param member player clanMember
+     * @param name clan name
+     * @param tag clan tag
+     * @param description clan description
      */
-    public Clan(String creatorName, UUID creator, String name, String tag, String description) {
+    public Clan(Player player, ClanMember member, String name, String tag, String description) {
         this.uuid = ClanManager.getManager().generateId();
-        this.creatorName = creatorName;
-        this.creator = creator;
+        this.creatorName = player.getName();
+        this.creator = player.getUniqueId();
         this.name = name;
-        this.tag = tag;
+        this.tag = (tag == null ? null : ChatColor.translateAlternateColorCodes('&', tag));
         this.description = description;
         this.created = ZonedDateTime.now();
-        this.home = null;
+        this.base = null;
         this.friendlyFire = false;
         this.stats = new GeneralStats();
         this.members = new ArrayList<>(ClanSettings.CLAN_MAX_MEMBERS);
@@ -78,8 +94,45 @@ public class Clan implements ClanAddon {
         this.clanAllies = new ArrayList<>(ClanSettings.CLAN_RELATIONS_SIZE);
         this.clanRivals = new ArrayList<>(ClanSettings.CLAN_RELATIONS_SIZE);
 
-        /* Then, save this clan. */
-        save();
+        ClanMember leader = member;
+        if (leader == null) leader = new ClanMember(player.getUniqueId(), player.getName(), this, ClanRole.LEADER, ZonedDateTime.now(), new GeneralStats());
+
+        leader.setPlayer(player);
+        leader.cache();
+        this.members.add(leader);
+
+        this.save();
+    }
+
+    /**
+     * Used to load an clan
+     * from Database.
+     *
+     * @param uuid
+     * @param creatorName
+     * @param creator
+     * @param base
+     * @param friendlyFire
+     * @param stats
+     * @param members
+     * @param clanAllies
+     * @param clanRivals
+     */
+    public void load(UUID uuid, String creatorName, UUID creator, Location base, Boolean friendlyFire, GeneralStats stats, List<ClanMember> members, List<String> clanAllies, List<String> clanRivals) {
+        this.uuid = uuid;
+        this.creatorName = creatorName;
+        this.creator = creator;
+        this.base = base;
+        this.friendlyFire = friendlyFire;
+        this.stats = stats;
+        this.members = members;
+        this.topMembers = new LinkedList<>();
+        this.clanAllies = clanAllies;
+        this.clanRivals = clanRivals;
+    }
+
+    public Boolean isNull() {
+        return this.name == null && this.tag == null;
     }
 
     private void save() {
@@ -91,20 +144,40 @@ public class Clan implements ClanAddon {
         return uuid;
     }
 
+    private void setClanUniqueId(UUID uuid) {
+        this.uuid = uuid;
+    }
+
     public String getCreatorName() {
         return creatorName;
+    }
+
+    private void setCreatorName(String creatorName) {
+        this.creatorName = creatorName;
     }
 
     public UUID getCreator() {
         return creator;
     }
 
+    private void setCreator(UUID creator) {
+        this.creator = creator;
+    }
+
     public String getName() {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getTag() {
         return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
     }
 
     public String getColoredTag() {
@@ -126,6 +199,10 @@ public class Clan implements ClanAddon {
         return description;
     }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public Boolean hasDescription() {
         if (description == null || description.isEmpty()) return false;
         return true;
@@ -135,17 +212,21 @@ public class Clan implements ClanAddon {
         return created;
     }
 
-    public Location getHome() {
-        return home;
+    private void setCreatedDate(ZonedDateTime time) {
+        this.created = time;
     }
 
-    public void setHome(Location value) {
-        this.home = value;
+    public Location getBase() {
+        return base;
+    }
+
+    public void setBase(Location location) {
+        this.base = location;
         this.update();
     }
 
-    public void deleteHome() {
-        this.home = null;
+    public void deleteBase() {
+        this.base = null;
     }
 
     public Boolean isFriendlyFire() {
@@ -273,7 +354,7 @@ public class Clan implements ClanAddon {
 
     public boolean addMember(UUID uuid, String name, ClanRole role, ZonedDateTime joined) {
         if (this.members.size() >= ClanSettings.CLAN_MAX_MEMBERS) return false;
-        ClanMember member = new ClanMember(uuid, name, role, joined);
+        ClanMember member = new ClanMember(uuid, name, this, role, joined, new GeneralStats());
         this.members.add(member);
         this.update();
         return true;
@@ -357,9 +438,9 @@ public class Clan implements ClanAddon {
      * @param message message to be sent.
      */
     public void sendMessage(final String message) {
-        String[] str = new String[1];
-        str[0] = message;
-        sendMessage(str);
+        for (ClanMember members : getMembers()) {
+            members.sendMessage(message);
+        }
     }
 
     /**
@@ -426,10 +507,7 @@ public class Clan implements ClanAddon {
         ClanManager.getManager().getDeletedClans().add(getUncoloredTag());
 
         for (ClanMember members : getMembers()) {
-            PlayerClan playerClan = PlayerClan.PlayerClanCache.getPlayerClan(members.getName());
-            if (playerClan == null) continue;
-
-            // TODO...
+            members.changeClan(this, null, new GeneralStats());
         }
 
         sendMessage("Clan disbanded.  // REMOVE THIS."); // TODO, Get this message from config file.
@@ -441,12 +519,13 @@ public class Clan implements ClanAddon {
         Clan clan = (Clan) obj;
 
         boolean uuid = StringUtils.equals(this.uuid.toString(), clan.getClanUniqueId().toString());
+        boolean creatorName = StringUtils.equals(this.creatorName, clan.getCreatorName());
         boolean creator = StringUtils.equals(this.creator.toString(), clan.getCreator().toString());
         boolean name = StringUtils.equals(this.name, clan.getName());
         boolean tag = (this.hasTag() == clan.hasTag());
         boolean description = (this.hasDescription() == clan.hasDescription());
         boolean created = (this.getCreatedDate().toInstant().compareTo(clan.getCreatedDate().toInstant()) == 0);
-        boolean home = ClanManager.getManager().isLocationEquals(this.home, clan.getHome());
+        boolean base = ClanManager.getManager().isLocationEquals(this.base, clan.getBase());
         boolean friendlyFire = (this.friendlyFire == clan.isFriendlyFire());
         boolean stats = this.stats.equals(clan.stats);
         boolean members = this.getMembers().equals(clan.getMembers());
@@ -462,19 +541,20 @@ public class Clan implements ClanAddon {
             description = StringUtils.equals(this.getDescription(), clan.getDescription());
         }
 
-        return uuid && creator && name && tag && description && created && home && friendlyFire && stats && members && topMembers && clanAllies && clanRivals;
+        return uuid && creatorName && creator && name && tag && description && created && base && friendlyFire && stats && members && topMembers && clanAllies && clanRivals;
     }
 
     @Override
     public String toString() {
         return "Clan={" +
                 "uuid='" + uuid.toString() + '\'' +
-                ", creator='" + creator + '\'' +
+                "creatorName='" + creatorName + '\'' +
+                ", creator='" + creator.toString() + '\'' +
                 ", name='" + name + '\'' +
                 ", tag='" + tag + '\'' +
                 ", description='" + description + '\'' +
                 ", created='" + created + '\'' +
-                ", home='" + home + '\'' +
+                ", base='" + base + '\'' +
                 ", friendlyFire='" + friendlyFire + '\'' +
                 ", stats='" + stats + '\'' +
                 ", members='" + members + '\'' +
@@ -482,89 +562,5 @@ public class Clan implements ClanAddon {
                 ", clanAllies='" + clanAllies + '\'' +
                 ", clanRivals='" + clanRivals + '\'' +
                 '}';
-    }
-
-    /*
-     * This class below represents
-     * the clan members.
-     */
-    public class ClanMember implements Comparable<ClanMember>{
-        private UUID uuid;
-        private String name;
-        private ClanRole role;
-        private ZonedDateTime joined;
-
-        /*
-         * Player stats.
-         * This value is reseted every
-         * time when he left a clan.
-         */
-        private GeneralStats stats;
-
-        public ClanMember(UUID uuid, String name, ClanRole role, ZonedDateTime joined) {
-            this.uuid = uuid;
-            this.name = name;
-            this.role = role;
-            this.joined = joined;
-            this.stats = new GeneralStats();
-        }
-
-        public UUID getUniqueId() {
-            return uuid;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public ClanRole getRole() {
-            return role;
-        }
-
-        public ZonedDateTime getJoinedDate() {
-            return joined;
-        }
-
-        public GeneralStats getPlayerStats() {
-            return stats;
-        }
-
-        public void sendMessage(final String message) {
-            PlayerClan playerClan = PlayerClan.PlayerClanCache.getPlayerClanList().get(name);
-            if (playerClan == null) return;
-
-            /* Send the message to {link@uuid} */
-            playerClan.sendMessage(message);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (!(obj instanceof ClanMember)) return false;
-            ClanMember clanMember = (ClanMember) obj;
-
-            boolean uuid = StringUtils.equals(this.uuid.toString(), clanMember.getUniqueId().toString());
-            boolean name = StringUtils.equals(this.name, clanMember.getName());
-            boolean role = (this.role.equals(clanMember.getRole()));
-            boolean joined = (this.getJoinedDate().toInstant().compareTo(clanMember.getJoinedDate().toInstant()) == 0);
-            boolean stats = this.stats.equals(clanMember.getPlayerStats());
-
-            return uuid && name && role && joined && stats;
-        }
-
-        @Override
-        public String toString() {
-            return "ClanMember={" +
-                    "uuid='" + uuid.toString() + '\'' +
-                    ", name='" + name + '\'' +
-                    ", role='" + role + '\'' +
-                    ", joined='" + joined + '\'' +
-                    '}';
-        }
-
-        @Override
-        public int compareTo(ClanMember value) {
-            if (value == null) return 0;
-            return this.getPlayerStats().getKills() - value.getPlayerStats().getKills();
-        }
     }
 }

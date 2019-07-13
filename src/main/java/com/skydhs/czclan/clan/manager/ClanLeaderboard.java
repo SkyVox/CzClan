@@ -12,9 +12,9 @@ public class ClanLeaderboard {
     public ClanLeaderboard() {}
 
     public void clearLeaderboard() {
-        this.topKills.clear();
-        this.topDeaths.clear();
-        this.topKDR.clear();
+        if (topKills != null) this.topKills.clear();
+        if (topDeaths != null) this.topDeaths.clear();
+        if (topKDR != null) this.topKDR.clear();
     }
 
     /**
