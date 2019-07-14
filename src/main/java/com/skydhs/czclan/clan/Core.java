@@ -23,6 +23,7 @@ public class Core extends JavaPlugin {
     private ConsoleCommandSender console = Bukkit.getConsoleSender();
 
     private NumberFormat numberFormat;
+    private Addon addon;
 
     @Override
     public void onEnable() {
@@ -52,13 +53,13 @@ public class Core extends JavaPlugin {
         this.numberFormat = new NumberFormat(FileUtils.get().getFile(FileUtils.Files.CONFIG).get());
         new ClanManager(this);
         // For the last, we should call the Addon class.
-        new Addon(this);
+        this.addon = new Addon(this);
 
         //* Setup the shop commands. *//
         sendMessage("Loading commands and listeners...");
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(), this);
-        getServer().getPluginCommand("clan").setExecutor(new ClanCmd());
+        getServer().getPluginCommand("clan").setExecutor(new ClanCmd(this));
         getServer().getPluginCommand("clanadmin").setExecutor(new ClanAdminCmd());
 
         sendMessage(ChatColor.YELLOW +  NAME + ChatColor.DARK_GRAY + "> " + ChatColor.GRAY + "has been enabled! Took " + getSpentTime(time) + "ms.");
@@ -79,9 +80,14 @@ public class Core extends JavaPlugin {
         }
 
         this.numberFormat = null;
+        this.addon = null;
 
         sendMessage(ChatColor.YELLOW +  NAME + ChatColor.DARK_GRAY + "> " + ChatColor.GRAY + "has been disabled!");
         sendMessage("----------");
+    }
+
+    public Addon getAddon() {
+        return addon;
     }
 
     public NumberFormat getNumberFormat() {

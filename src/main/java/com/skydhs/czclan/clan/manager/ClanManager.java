@@ -1,6 +1,8 @@
 package com.skydhs.czclan.clan.manager;
 
 import com.skydhs.czclan.clan.Core;
+import com.skydhs.czclan.clan.FileUtils;
+import com.skydhs.czclan.clan.Log;
 import com.skydhs.czclan.clan.database.DBManager;
 import com.skydhs.czclan.clan.manager.objects.Clan;
 import com.skydhs.czclan.clan.manager.objects.ClanMember;
@@ -14,8 +16,11 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class ClanManager {
+    private final Pattern STRIP_COLOR_PATTERN = Pattern.compile("(?i)" + String.valueOf('&') + "[0-9A-FK-OR]");
+
     private static ClanManager manager;
     private static ClanLeaderboard leaderboard;
 
@@ -137,9 +142,50 @@ public class ClanManager {
         }
     }
 
+    public Clan create(Player player, ClanMember member, String name, final String tag, final String description) {
+        Clan clan = new Clan(player, member, name, tag, description);
+        // TODO, call the create clan event.
+
+        // Send the created messages.
+        player.sendMessage(FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Messages.clan-created").getList(player, clan));
+        // Then, broadcast it.
+        for (String str : FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Broadcast.new-clan-created").getList(player, clan)) {
+            Log.sendPlayerMessages(str);
+        }
+
+        return clan;
+    }
+
+    /**
+     * Get the clan leader.
+     *
+     * @param members the members list to verify.
+     * @return
+     */
+    public ClanMember getClanLeader(List<ClanMember> members) {
+        if (members == null || members.size() <= 0) return null;
+
+        for (ClanMember member : members) {
+            if (member.getRole().isAtLeast(ClanRole.LEADER)) return member;
+        }
+
+        return null;
+    }
+
     public boolean isLocationEquals(Location one, Location two) {
         if (one == null || two == null) return false;
         return one.getBlockX() == two.getBlockX() && one.getBlockY() == two.getBlockY() && one.getBlockZ() == two.getBlockZ();
+    }
+
+    /**
+     * Removes color code from
+     * a specific string.
+     *
+     * @param input
+     * @return
+     */
+    public String stripColor(String input) {
+        return input == null ? null : STRIP_COLOR_PATTERN.matcher(input).replaceAll("");
     }
 
     public String serializeLocation(Location location) throws NullPointerException {
@@ -260,6 +306,29 @@ public class ClanManager {
 
         ret.cache();
         return ret;
+    }
+
+    public boolean isNameInUse(final String name) {
+        if (name == null) return false;
+
+        String search = ChatColor.stripColor(name);
+
+        for (Clan clans : getLoadedClans().values()) {
+            if (StringUtils.equalsIgnoreCase(search, ChatColor.stripColor(clans.getUncoloredTag()))) return true;
+        }
+
+        return false;
+    }
+
+    public boolean isTagInUse(final String tag) {
+        if (tag == null) return false;
+
+        String search = ChatColor.stripColor(tag);
+        return getLoadedClans().get(search) != null;
+    }
+
+    public boolean canUse(final String name, final String tag) {
+        return isNameInUse(name) && isTagInUse(tag);
     }
 
     /**

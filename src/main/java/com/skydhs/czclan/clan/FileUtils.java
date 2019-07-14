@@ -1,9 +1,12 @@
 package com.skydhs.czclan.clan;
 
+import com.skydhs.czclan.clan.manager.ClanSettings;
+import com.skydhs.czclan.clan.manager.objects.Clan;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 
 import java.io.*;
 import java.util.HashMap;
@@ -239,6 +242,52 @@ public class FileUtils {
             return setPlaceholder(placeholders, replaces);
         }
 
+        public String getString(Player player, Clan clan) {
+            if (str == null || str.isEmpty()) return str;
+            if (clan == null) return getColored();
+
+            str = ChatColor.translateAlternateColorCodes('&', StringUtils.replaceEach(str, new String[] {
+                    // Clan Placeholders.
+                    "%sky_clan_creator_uuid%",
+                    "%sky_clan_creator_name%",
+                    "%sky_clan_leader_name%",
+                    "%sky_clan_name%",
+                    "%sky_clan_tag%",
+                    "%sky_clan_uncolored_tag%",
+                    "%sky_clan_description%",
+                    "%sky_clan_created_date%",
+                    "%sky_clan_friendly_fire%",
+                    "%sky_clan_coins%",
+                    "%sky_clan_kills%",
+                    "%sky_clan_deaths%",
+                    "%sky_clan_members_list%",
+                    "%sky_clan_allies%",
+                    "%sky_clan_rivals%",
+
+                    // Player Placeholders.
+                    "%player_name%"
+            }, new String[] {
+                    clan.getCreator().toString(),
+                    clan.getCreatorName(),
+                    clan.getLeaderName(),
+                    clan.getName(),
+                    clan.getTag(),
+                    clan.getUncoloredTag(),
+                    clan.getDescription(),
+                    clan.getCreatedDate().toInstant().toString(),
+                    clan.isFriendlyFire() ? ClanSettings.BOOLEAN_TRUE : ClanSettings.BOOLEAN_FALSE,
+                    String.valueOf(clan.getCoins()),
+                    String.valueOf(clan.getKills()),
+                    String.valueOf(clan.getDeaths()),
+                    StringUtils.join(clan.getMembers(), ','),
+                    StringUtils.join(clan.getClanAllies(), ','),
+                    StringUtils.join(clan.getClanRivals(), ','),
+                    player == null ? "" : player.getName()
+            }));
+
+            return str;
+        }
+
         public String getColoredString(String[] placeholders, String[] replaces) {
             return ChatColor.translateAlternateColorCodes('&', setPlaceholder(placeholders, replaces));
         }
@@ -285,6 +334,56 @@ public class FileUtils {
 
         public String[] getList(String[] placeholders, String[] replaces) {
             return setPlaceholder(placeholders, replaces);
+        }
+
+        public String[] getList(Player player, Clan clan) {
+            if (str == null || str.length <= 0) return str;
+            if (clan == null) return getColored();
+
+            String[] ret = new String[str.length];
+
+            for (int i = 0; i < str.length; i++) {
+                ret[i] = ChatColor.translateAlternateColorCodes('&', StringUtils.replaceEach(str[i], new String[] {
+                        // Clan Placeholders.
+                        "%sky_clan_creator_uuid%",
+                        "%sky_clan_creator_name%",
+                        "%sky_clan_leader_name%",
+                        "%sky_clan_name%",
+                        "%sky_clan_tag%",
+                        "%sky_clan_uncolored_tag%",
+                        "%sky_clan_description%",
+                        "%sky_clan_created_date%",
+                        "%sky_clan_friendly_fire%",
+                        "%sky_clan_coins%",
+                        "%sky_clan_kills%",
+                        "%sky_clan_deaths%",
+                        "%sky_clan_members_list%",
+                        "%sky_clan_allies%",
+                        "%sky_clan_rivals%",
+
+                        // Player Placeholders.
+                        "%player_name%"
+                }, new String[] {
+                        clan.getCreator().toString(),
+                        clan.getCreatorName(),
+                        clan.getLeaderName(),
+                        clan.getName(),
+                        clan.getTag(),
+                        clan.getUncoloredTag(),
+                        clan.getDescription(),
+                        clan.getCreatedDate().toInstant().toString(),
+                        clan.isFriendlyFire() ? ClanSettings.BOOLEAN_TRUE : ClanSettings.BOOLEAN_FALSE,
+                        String.valueOf(clan.getCoins()),
+                        String.valueOf(clan.getKills()),
+                        String.valueOf(clan.getDeaths()),
+                        StringUtils.join(clan.getMembers(), ','),
+                        StringUtils.join(clan.getClanAllies(), ','),
+                        StringUtils.join(clan.getClanRivals(), ','),
+                        player == null ? "" : player.getName()
+                }));
+            }
+
+            return ret;
         }
 
         private String[] setPlaceholder(String[] placeholders, String[] replaces) {

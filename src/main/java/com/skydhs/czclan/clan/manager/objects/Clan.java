@@ -16,6 +16,7 @@ public class Clan implements ClanAddon {
     private UUID uuid;
     private String creatorName;
     private UUID creator;
+    private String leaderName;
     private String name;
     private String tag;
     private String description;
@@ -52,6 +53,10 @@ public class Clan implements ClanAddon {
      */
     private Boolean update = false;
 
+    /*
+     * TODO, clan date creation and player joined date are being replaced always when player executes the action.
+     */
+
     /**
      * Used to load clans.
      *
@@ -82,6 +87,7 @@ public class Clan implements ClanAddon {
         this.uuid = ClanManager.getManager().generateId();
         this.creatorName = player.getName();
         this.creator = player.getUniqueId();
+        this.leaderName = player.getName();
         this.name = name;
         this.tag = (tag == null ? null : ChatColor.translateAlternateColorCodes('&', tag));
         this.description = description;
@@ -122,6 +128,7 @@ public class Clan implements ClanAddon {
         this.uuid = uuid;
         this.creatorName = creatorName;
         this.creator = creator;
+        this.leaderName = ClanManager.getManager().getClanLeader(members).getName();
         this.base = base;
         this.friendlyFire = friendlyFire;
         this.stats = stats;
@@ -162,6 +169,14 @@ public class Clan implements ClanAddon {
 
     private void setCreator(UUID creator) {
         this.creator = creator;
+    }
+
+    public String getLeaderName() {
+        return leaderName;
+    }
+
+    public void setLeaderName(String leaderName) {
+        this.leaderName = leaderName;
     }
 
     public String getName() {
@@ -521,6 +536,7 @@ public class Clan implements ClanAddon {
         boolean uuid = StringUtils.equals(this.uuid.toString(), clan.getClanUniqueId().toString());
         boolean creatorName = StringUtils.equals(this.creatorName, clan.getCreatorName());
         boolean creator = StringUtils.equals(this.creator.toString(), clan.getCreator().toString());
+        boolean leaderName = StringUtils.equals(this.leaderName, clan.getLeaderName());
         boolean name = StringUtils.equals(this.name, clan.getName());
         boolean tag = (this.hasTag() == clan.hasTag());
         boolean description = (this.hasDescription() == clan.hasDescription());
@@ -541,7 +557,7 @@ public class Clan implements ClanAddon {
             description = StringUtils.equals(this.getDescription(), clan.getDescription());
         }
 
-        return uuid && creatorName && creator && name && tag && description && created && base && friendlyFire && stats && members && topMembers && clanAllies && clanRivals;
+        return uuid && creatorName && creator && leaderName && name && tag && description && created && base && friendlyFire && stats && members && topMembers && clanAllies && clanRivals;
     }
 
     @Override
@@ -550,6 +566,7 @@ public class Clan implements ClanAddon {
                 "uuid='" + uuid.toString() + '\'' +
                 "creatorName='" + creatorName + '\'' +
                 ", creator='" + creator.toString() + '\'' +
+                ", creator='" + leaderName + '\'' +
                 ", name='" + name + '\'' +
                 ", tag='" + tag + '\'' +
                 ", description='" + description + '\'' +

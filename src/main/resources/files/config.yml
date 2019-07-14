@@ -4,8 +4,36 @@ Settings:
   # servidor - database.
   update-interval: 5 # Em minutos.
 
+  # Caso uma variavel boolean
+  # seja, true.
+  boolean-true: "&aOn"
+  # Caso uma variavel boolean
+  # seja, false.
+  boolean-false: "&cOff"
+
+  # <----- -----> #
   # Abaixo está a configuração
   # dos clans.
+  # <----- -----> #
+
+  # Quantidade máxima de
+  # caracteres que a
+  # tag do clan pode ter.
+  clan-max-tag-size: 16
+
+  # Quantidade minima que
+  # a tag do clan deve
+  # ter.
+  clan-min-tag-size: 3
+
+  # Quantidade máxima de
+  # caracteres no nome
+  # do clan.
+  clan-name-max-size: 32
+
+  # Quantidade minima que
+  # o nome do clan deve ter.
+  clan-name-min-size: 7
 
   # Quantidade máxima de jogadores
   # por clan.
@@ -15,7 +43,7 @@ Settings:
   # jogadores do mesmo clan,
   # quantidade de membros
   # que será apresentado.
-  member-leaderboard-limit: 3;
+  member-leaderboard-limit: 3
 
   # Máximo de aliado e/ou
   # rival que o clan pode ter.
@@ -50,11 +78,30 @@ Roles:
     name: "MEMBRO"
     color: "&7"
 
-Messages: {}
+# Mensagens.
+Messages:
+  # Criação/Editar clan.
+  already-has-clan: "&cVocê já possui clan."
+  invalid-name-or-tag: "&cEste nome ou tag não é válido."
+  name-already-in-use: "&cEste nome já está em uso."
+  tag-already-in-use: "&cEsta tag já está em uso."
+  invalid-name-size: "&cO nome do clan deve ter entre &f%max_length% &ce &f%min_length%&c."
+  invalid-tag-size: "&cA tag do clan deve ter entre &f%max_length% &ce &f%min_length%&c."
+  invalid-characters: "&cO nome/tag do seu clan possui caracteres inválidos."
+
+  clan-created: "&aVocê criou um novo clan."
+
+Broadcast:
+  new-clan-created: # Para remover esta mensagem, apenas apague as linhas abaixo e adicione "{}" na frente de "new-clan-created:";
+    - '&8--------------------'
+    - '&aNovo clan criado, NOME: ''%sky_clan_name%'', TAG: ''%sky_clan_tag%''.'
+    - '&8--------------------'
 
 # Mensagens dos comandos.
 Commands:
   only-players: "&cApenas jogadores podem executar este comando."
+
+  create-clan-help: "&cUse: &e/clan criar/create <nome> <tag> <descrição> &b: Criar novo clan."
 
   # Help-me.
   help:
@@ -62,7 +109,7 @@ Commands:
     - ''
     - '&aComandos do Clan:'
     - '&e/clan &b: Abrir menu principal.'
-    - '&e/clan criar/create &b: Criar novo clan.'
+    - '&e/clan criar/create <nome> <tag> <descrição> &b: Criar novo clan.'
     - '&e/clan top &b: Ver a lista dos melhores clans.'
     - '&e/clan jogador/perfil/player <jogador> &b: Ver informações do jogador.'
     - '&e/clan clan <tag> &b: Ver informações do clan.'
