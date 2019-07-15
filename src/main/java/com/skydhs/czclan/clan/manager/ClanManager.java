@@ -64,7 +64,7 @@ public class ClanManager {
      * is needed.
      */
     public void update() {
-        for (Clan clans : new HashMap<String, Clan>(getLoadedClans()).values()) {
+        for (Clan clans : new HashMap<>(getLoadedClans()).values()) {
             if (clans == null || deletedClans.contains(clans.getUncoloredTag())) continue;
             clans.updateTopMembers();
 
@@ -82,7 +82,7 @@ public class ClanManager {
         // Update clan leaderboard.
         leaderboard.updateLeaderboard();
 
-        for (String name : new HashMap<String, ClanMember>(getLoadedMembers()).keySet()) {
+        for (String name : new HashMap<>(getLoadedMembers()).keySet()) {
             ClanMember member = getLoadedMembers().get(name);
 
             if (member == null) {
@@ -90,53 +90,59 @@ public class ClanManager {
                 DBManager.getDBManager().getDBConnection().delete(name, DBManager.CLAN_MEMBERS, "name");
                 // Then remove him from our cache.
                 getLoadedMembers().remove(name);
-            } else {
+                continue;
+            }
+
+            final boolean pendingInvites = member.hasPendingInvites();
+
+            if (member.hasClan()) {
                 /*
-                 * Verify if this player has some
-                 * pending clan invitations.
+                 * Update this player,
+                 * send all them stats to
+                 * database.
                  */
-                if (member.hasPendingInvites()) {
-                    ZonedDateTime now = ZonedDateTime.now();
-                    Map<String, ZonedDateTime> invitations = new HashMap<>(member.getPendingInvites());
-                    int expired = 0;
-
-                    for (String tag : invitations.keySet()) {
-                        ZonedDateTime inviteTime = invitations.get(tag);
-                        inviteTime.plusMinutes(ClanSettings.CLAN_PLAYER_INVITE_EXPIRATION_TIME);
-
-                        Duration duration = Duration.between(inviteTime, now);
-                        if (duration.toMinutes() >= 1) {
-                            // This invite has expired.
-                            member.getPendingInvites().remove(tag);
-                            expired+=1;
-                        }
-                    }
-
-                    if (expired >= invitations.size()) {
-                        // Then remove him.
-                        if (!member.hasClan()) {
-                            getLoadedMembers().remove(name);
-                        }
-                    }
-
-                    continue;
-                }
-
-                /*
-                 * If this player doesn't has
-                 * clan, we don't need him
-                 * on our cache.
-                 */
-                if (!member.hasClan()) {
-                    getLoadedMembers().remove(name);
-                    continue;
-                }
-
-                // Then, update this player to DB.
                 DBManager.getDBManager().getDBConnection().updateMember(member);
 
                 if (!member.isOnline()) {
                     member.unload();
+                }
+            } else {
+                if (!pendingInvites) {
+                    /*
+                     * If this player doesn't has
+                     * clan, we don't need him
+                     * on our cache.
+                     */
+                    getLoadedMembers().remove(name);
+                }
+            }
+
+            /*
+             * Verify if this player has some
+             * pending clan invitations.
+             */
+            if (pendingInvites) {
+                ZonedDateTime now = ZonedDateTime.now();
+                Map<String, ZonedDateTime> invitations = new HashMap<>(member.getPendingInvites());
+                int expired = 0;
+
+                for (String tag : invitations.keySet()) {
+                    ZonedDateTime inviteTime = invitations.get(tag);
+                    inviteTime.plusMinutes(ClanSettings.CLAN_PLAYER_INVITE_EXPIRATION_TIME);
+
+                    Duration duration = Duration.between(inviteTime, now);
+                    if (duration.toMinutes() >= 1) {
+                        // This invite has expired.
+                        member.getPendingInvites().remove(tag);
+                        expired+=1;
+                    }
+                }
+
+                if (expired >= invitations.size()) {
+                    // Then remove him.
+                    if (!member.hasClan()) {
+                        getLoadedMembers().remove(name);
+                    }
                 }
             }
         }

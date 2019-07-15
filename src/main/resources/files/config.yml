@@ -11,6 +11,9 @@ Settings:
   # seja, false.
   boolean-false: "&cOff"
 
+  # Formatação dos dia/horário.
+  date-format-pattern: "dd/MM/yyyy - hh:mm"
+
   # <----- -----> #
   # Abaixo está a configuração
   # dos clans.
@@ -53,10 +56,20 @@ Settings:
   # clans do servidor,
   # quantos clans
   # será apresentado.
-  clan-leaderboad-limit: 10
+  clan-leaderboad-limit: 15
 
   # Tempo para expirar convites.
   invite-expiration-time: 5 # Em minutos.
+
+# Configurações dos nomes
+# das classificações.
+Leaderboard:
+  kills:
+    name: "abates"
+  deaths:
+    name: "mortes"
+  kdr:
+    name: "kdr"
 
 # Configurações dos Cargos.
 Roles:
@@ -80,6 +93,7 @@ Roles:
 
 # Mensagens.
 Messages:
+  target-not-found: "&cNão foi possível encontrar este jogador."
   # Criação/Editar clan.
   already-has-clan: "&cVocê já possui clan."
   invalid-name-or-tag: "&cEste nome ou tag não é válido."
@@ -88,8 +102,9 @@ Messages:
   invalid-name-size: "&cO nome do clan deve ter entre &f%max_length% &ce &f%min_length%&c."
   invalid-tag-size: "&cA tag do clan deve ter entre &f%max_length% &ce &f%min_length%&c."
   invalid-characters: "&cO nome/tag do seu clan possui caracteres inválidos."
-
   clan-created: "&aVocê criou um novo clan."
+  # Clan player comando.
+  target-clan-not-found: "&cEste jogador não possui clan."
 
 Broadcast:
   new-clan-created: # Para remover esta mensagem, apenas apague as linhas abaixo e adicione "{}" na frente de "new-clan-created:";

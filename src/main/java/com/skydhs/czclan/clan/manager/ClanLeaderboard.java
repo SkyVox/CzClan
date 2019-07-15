@@ -1,5 +1,6 @@
 package com.skydhs.czclan.clan.manager;
 
+import com.skydhs.czclan.clan.FileUtils;
 import com.skydhs.czclan.clan.database.DBManager;
 import com.skydhs.czclan.clan.manager.objects.Clan;
 
@@ -51,8 +52,24 @@ public class ClanLeaderboard {
     }
 
     public enum LeaderboardType {
-        KILLS,
-        DEATHS,
-        KDR;
+        KILLS('0', FileUtils.get().getString(FileUtils.Files.CONFIG, "Leaderboard.kills.name").get()),
+        DEATHS('1', FileUtils.get().getString(FileUtils.Files.CONFIG, "Leaderboard.deaths.name").get()),
+        KDR('2', FileUtils.get().getString(FileUtils.Files.CONFIG, "Leaderboard.kdr.name").get());
+
+        private char id;
+        private String translated;
+
+        LeaderboardType(char id, String translated) {
+            this.id = id;
+            this.translated = translated;
+        }
+
+        public char getId() {
+            return id;
+        }
+
+        public String getName() {
+            return translated;
+        }
     }
 }

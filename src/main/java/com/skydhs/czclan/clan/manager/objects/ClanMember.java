@@ -4,6 +4,7 @@ import com.skydhs.czclan.clan.manager.ClanManager;
 import com.skydhs.czclan.clan.manager.ClanRole;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
+import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
 import org.bukkit.entity.Player;
 
 import java.time.ZonedDateTime;
@@ -199,10 +200,10 @@ public class ClanMember implements Comparable<ClanMember> {
     @Override
     public String toString() {
         return "ClanMember={" +
-                "uuid='" + uuid.toString() + '\'' +
+                "uuid='" + uuid + '\'' +
                 ", name='" + name + '\'' +
                 ", tag='" + tag + '\'' +
-                ", clan='" + clan + '\'' +
+//                ", clan='" + clan + '\'' + // Removed.
                 ", role='" + role + '\'' +
                 ", joined='" + joined + '\'' +
                 ", stats='" + stats + '\'' +
@@ -210,8 +211,12 @@ public class ClanMember implements Comparable<ClanMember> {
     }
 
     @Override
-    public int compareTo(ClanMember value) {
+    public int compareTo(@Nullable ClanMember value) throws NullPointerException {
         if (value == null) return 0;
-        return this.getPlayerStats().getKills() - value.getPlayerStats().getKills();
+
+        int x = this.getPlayerStats().getKills();
+        int y = value.getPlayerStats().getKills();
+
+        return (x < y) ? -1 : ((x == y) ? 0 : 1);
     }
 }

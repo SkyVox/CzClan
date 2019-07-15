@@ -40,17 +40,17 @@ public class CommandHandle {
             return false;
         }
 
-        if (name.matches(ClanSettings.CLAN_NAMES_REGEX) || tag.matches(ClanSettings.CLAN_NAMES_REGEX)) {
+        if (!name.matches(ClanSettings.CLAN_NAMES_REGEX) || !tag.matches(ClanSettings.CLAN_NAMES_REGEX)) {
             player.sendMessage(file.getString(CONFIG, "Messages.invalid-characters").getColored());
             return false;
         }
 
-        if (!ClanManager.getManager().isNameInUse(name)) {
+        if (ClanManager.getManager().isNameInUse(name)) {
             player.sendMessage(file.getString(CONFIG, "Messages.name-already-in-use").getColored());
             return false;
         }
 
-        if (!ClanManager.getManager().isTagInUse(tag)) {
+        if (ClanManager.getManager().isTagInUse(tag)) {
             player.sendMessage(file.getString(CONFIG, "Messages.tag-already-in-use").getColored());
             return false;
         }
@@ -62,5 +62,19 @@ public class CommandHandle {
 
     public static void top(Core core, Player player, String[] args) {
         core.getAddon().commandTop(player);
+    }
+
+    public static void player(Core core, Player player, ClanMember member) {
+        if (member == null) {
+            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.target-not-found").getColored());
+            return;
+        }
+
+        if (!member.hasClan()) {
+            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.target-clan-not-found").getColored());
+            return;
+        }
+
+        core.getAddon().commandPlayer(player, member);
     }
 }

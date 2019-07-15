@@ -3,7 +3,11 @@ package com.skydhs.czclan.addon;
 import com.skydhs.czclan.addon.menu.ClanMenuAddon;
 import com.skydhs.czclan.clan.ClanAddon;
 import com.skydhs.czclan.clan.Core;
+import com.skydhs.czclan.clan.manager.ClanLeaderboard;
+import com.skydhs.czclan.clan.manager.objects.ClanMember;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 
 public class Addon implements ClanAddon {
     private Core core;
@@ -22,7 +26,20 @@ public class Addon implements ClanAddon {
         this.core = core;
     }
 
+    @Override
     public void commandTop(Player player) {
-        player.openInventory(ClanMenuAddon.getTopClansMenu(player));
+        Inventory inventory = ClanMenuAddon.getTopClansMenu(player, ClanLeaderboard.LeaderboardType.KILLS);
+
+        if (inventory == null) {
+            player.sendMessage(ChatColor.RED + "Não foi possível encontrar nenhum clan nessa classificação. Por favor tente novamente em alguns minutos!");
+            return;
+        }
+
+        player.openInventory(inventory);
+    }
+
+    @Override
+    public void commandPlayer(Player player, ClanMember member) {
+        player.openInventory(ClanMenuAddon.getPlayerStatsMenu(member));
     }
 }

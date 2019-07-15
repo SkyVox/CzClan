@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Clan implements ClanAddon {
     private UUID uuid;
@@ -476,21 +477,11 @@ public class Clan implements ClanAddon {
      * {@link ClanMember}
      */
     public void updateTopMembers() {
-        List<ClanMember> members = new ArrayList<>(ClanSettings.CLAN_MEMBER_LEADERBOARD_LIMIT);
+        List<ClanMember> members = new LinkedList<>(getMembers());
 
-        for (ClanMember member : getMembers()) {
-            members.add(member);
-            if (members.size() >= ClanSettings.CLAN_MEMBER_LEADERBOARD_LIMIT) break;
-        }
-
-        // Sort this list above by member kills.
-        Collections.sort(members);
-
-        getTopMembers().clear();
-
-        for (ClanMember member : members) {
-            this.topMembers.add(member);
-        }
+        // Clear all old member stats.
+        this.topMembers.clear();
+        this.topMembers = members.stream().sorted(Collections.reverseOrder()).limit(ClanSettings.CLAN_MEMBER_LEADERBOARD_LIMIT).collect(Collectors.toList());
     }
 
     /**
@@ -563,9 +554,9 @@ public class Clan implements ClanAddon {
     @Override
     public String toString() {
         return "Clan={" +
-                "uuid='" + uuid.toString() + '\'' +
+                "uuid='" + uuid + '\'' +
                 "creatorName='" + creatorName + '\'' +
-                ", creator='" + creator.toString() + '\'' +
+                ", creator='" + creator + '\'' +
                 ", creator='" + leaderName + '\'' +
                 ", name='" + name + '\'' +
                 ", tag='" + tag + '\'' +

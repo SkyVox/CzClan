@@ -3,6 +3,8 @@ package com.skydhs.czclan.clan.manager;
 import com.skydhs.czclan.clan.FileUtils;
 
 public class ClanSettings {
+    public static final String DATE_FORMAT_PATTERN = FileUtils.get().getString(FileUtils.Files.CONFIG, "Settings.date-format-pattern").get();
+
     /*
      * When boolean values
      * are true.
