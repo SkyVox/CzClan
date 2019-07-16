@@ -4,6 +4,7 @@ import com.skydhs.czclan.addon.menu.ClanMenuAddon;
 import com.skydhs.czclan.clan.ClanAddon;
 import com.skydhs.czclan.clan.Core;
 import com.skydhs.czclan.clan.manager.ClanLeaderboard;
+import com.skydhs.czclan.clan.manager.objects.Clan;
 import com.skydhs.czclan.clan.manager.objects.ClanMember;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -41,5 +42,15 @@ public class Addon implements ClanAddon {
     @Override
     public void commandPlayer(Player player, ClanMember member) {
         player.openInventory(ClanMenuAddon.getPlayerStatsMenu(member));
+    }
+
+    @Override
+    public void commandClan(Player player, Clan clan) {
+        player.openInventory(ClanMenuAddon.getClanStatsMenu(clan));
+    }
+
+    @Override
+    public void commandMembers(Player player, Clan clan) {
+        player.openInventory(ClanMenuAddon.getClanMembersMenu(clan));
     }
 }

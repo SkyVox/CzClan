@@ -410,6 +410,21 @@ public class Clan implements ClanAddon {
         return clanAllies;
     }
 
+    /**
+     * Format the clan allies
+     * list.
+     *
+     * @param separator
+     * @return The formatted clan allies.
+     */
+    public String getFormattedAllies(char separator) {
+        return StringUtils.join(clanAllies, separator);
+    }
+
+    public Boolean hasAllies() {
+        return clanAllies != null && clanAllies.size() > 0;
+    }
+
     public boolean addAliases(Clan clan) {
         String tag = clan.getUncoloredTag();
         if (tag == null || this.clanAllies.size() >= ClanSettings.CLAN_RELATIONS_SIZE) return false;
@@ -429,6 +444,21 @@ public class Clan implements ClanAddon {
 
     public List<String> getClanRivals() {
         return clanRivals;
+    }
+
+    /**
+     * Format the clan rivals
+     * list.
+     *
+     * @param separator
+     * @return The formatted clan rivals.
+     */
+    public String getFormattedRivals(char separator) {
+        return StringUtils.join(clanRivals, separator);
+    }
+
+    public Boolean hasRivals() {
+        return clanRivals != null && clanRivals.size() >= 1;
     }
 
     public boolean addRivals(Clan clan) {

@@ -4,6 +4,7 @@ import com.skydhs.czclan.clan.Core;
 import com.skydhs.czclan.clan.FileUtils;
 import com.skydhs.czclan.clan.manager.ClanManager;
 import com.skydhs.czclan.clan.manager.ClanSettings;
+import com.skydhs.czclan.clan.manager.objects.Clan;
 import com.skydhs.czclan.clan.manager.objects.ClanMember;
 import org.bukkit.entity.Player;
 
@@ -76,5 +77,23 @@ public class CommandHandle {
         }
 
         core.getAddon().commandPlayer(player, member);
+    }
+
+    public static void clan(Core core, Player player, Clan clan) {
+        if (clan == null || clan.isNull()) {
+            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.clan-not-found").getColored());
+            return;
+        }
+
+        core.getAddon().commandClan(player, clan);
+    }
+
+    public static void members(Core core, Player player, Clan clan) {
+        if (clan == null || clan.isNull()) {
+            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.clan-not-found").getColored());
+            return;
+        }
+
+        core.getAddon().commandMembers(player, clan);
     }
 }

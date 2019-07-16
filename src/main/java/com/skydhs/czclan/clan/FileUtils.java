@@ -280,8 +280,8 @@ public class FileUtils {
                     String.valueOf(clan.getKills()),
                     String.valueOf(clan.getDeaths()),
                     StringUtils.join(clan.getMembers(), ','),
-                    StringUtils.join(clan.getClanAllies(), ','),
-                    StringUtils.join(clan.getClanRivals(), ','),
+                    clan.getFormattedAllies(','),
+                    clan.getFormattedRivals(','),
                     player == null ? "" : player.getName()
             }));
 
@@ -377,8 +377,8 @@ public class FileUtils {
                         String.valueOf(clan.getKills()),
                         String.valueOf(clan.getDeaths()),
                         StringUtils.join(clan.getMembers(), ','),
-                        StringUtils.join(clan.getClanAllies(), ','),
-                        StringUtils.join(clan.getClanRivals(), ','),
+                        clan.getFormattedAllies(','),
+                        clan.getFormattedRivals(','),
                         player == null ? "" : player.getName()
                 }));
             }

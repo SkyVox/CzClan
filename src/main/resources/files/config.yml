@@ -93,6 +93,9 @@ Roles:
 
 # Mensagens.
 Messages:
+  role-required: "&cVocê precisa ser %role_name% ou superior."
+  not-in-clan: "&cVocê não possui Clan."
+  clan-not-found: "&cNão foi possível encontrar este Clan."
   target-not-found: "&cNão foi possível encontrar este jogador."
   # Criação/Editar clan.
   already-has-clan: "&cVocê já possui clan."
@@ -118,6 +121,18 @@ Commands:
 
   create-clan-help: "&cUse: &e/clan criar/create <nome> <tag> <descrição> &b: Criar novo clan."
 
+  # Comando de aliados.
+  no-allies-found: "&cNão foi possível encontrar aliados. (Seu Clan não possui aliados)."
+  allies-list: "&7Lista de aliados: &7[&e%sky_clan_allies%&7]"
+
+  # Comando de rivais.
+  no-rivals-found: "&cNão foi possível encontrar rivais. (Seu Clan não possui rivais)."
+  rivals-list: "&7Lista de rivais: &7[&e%sky_clan_rivals%&7]"
+
+  # Pvp clan.
+  clan-pvp-enabled: "&cPVP entre membros do clan foi habilitado!" # Está mensagem será enviada para todos membros do clan.
+  clan-pvp-disabled: "&aPVP entre membros do clan foi desabilitado!" # Está mensagem será enviada para todos membros do clan.
+
   # Help-me.
   help:
     - '&6-------------------------'
@@ -127,7 +142,7 @@ Commands:
     - '&e/clan criar/create <nome> <tag> <descrição> &b: Criar novo clan.'
     - '&e/clan top &b: Ver a lista dos melhores clans.'
     - '&e/clan jogador/perfil/player <jogador> &b: Ver informações do jogador.'
-    - '&e/clan clan <tag> &b: Ver informações do clan.'
+    - '&e/clan clan/stats <tag> &b: Ver informações do clan.'
     - '&e/clan rivalidades/rivals &b: Ver lista de rivalidades.'
     - '&e/clan aliancas/alianças/allies &b: Ver lista de aliados.'
     - '&e/clan membros/members &b: Ver membros do clan.'

@@ -6,6 +6,7 @@ import com.skydhs.czclan.clan.manager.ClanSettings;
 import com.skydhs.czclan.clan.manager.ItemBuilder;
 import com.skydhs.czclan.clan.manager.objects.Clan;
 import com.skydhs.czclan.clan.manager.objects.ClanMember;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -18,12 +19,17 @@ import java.util.List;
 
 public class ClanMenuAddon {
     public static final String TOP_MENU = ChatColor.GRAY + "Classificação de Clans";
-    public static final String PLAYER_STATS_MENU = ChatColor.GRAY + "Informações do jogador";
+    public static final String PLAYER_STATS_MENU = ChatColor.GRAY + "Informações de %%player_name%%";
+    public static final String CLAN_STATS_MENU = ChatColor.GRAY + "Informações do '%%clan_tag%%'";
+    public static final String CLAN_MEMBERS_MENU = ChatColor.GRAY + "Lista de Membros";
 
     private static final int[] TOP_MENU_GLASSES_SLOTS = new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 16, 17, 18, 19, 25, 26, 27, 28, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 46, 48, 50, 52, 53 };
     private static final int[] LEADERBOARD_HEAD_SLOTS = new int[] { 11, 12, 13, 14, 15, 20, 21, 22, 23, 24, 29, 30, 31, 32, 33 };
+    private static final int[] CLAN_MEMBERS_GLASSES_SLOTS = new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 26, 27, 35, 36, 44, 45, 46, 47, 48, 50, 51, 52, 53 };
 
     private static final ItemStack GLASS = new ItemBuilder(Material.STAINED_GLASS_PANE, 1, (short) 7).withName(" ").build();
+
+    private static final char SQUARE_CODE = '\u25A0';
 
     public static Inventory getMainMenu() { return null; }
 
@@ -77,7 +83,7 @@ public class ClanMenuAddon {
     }
 
     public static Inventory getPlayerStatsMenu(ClanMember member) {
-        Inventory inventory = Bukkit.createInventory(null, 9*3, PLAYER_STATS_MENU);
+        Inventory inventory = Bukkit.createInventory(null, 9*3, StringUtils.replace(PLAYER_STATS_MENU, "%%player_name%%", member.getName()));
 
         for (int i = 0; i < 27; i++) {
             if (i == 13) continue;
@@ -86,15 +92,70 @@ public class ClanMenuAddon {
 
         ItemBuilder item = new ItemBuilder(Material.SKULL_ITEM, 1, (short) 3);
         item.setSkullOwner(member.getName());
+
         item.withName(ChatColor.YELLOW + "Informações do " + member.getName());
         item.addLore(" ");
         item.addLore(ChatColor.GRAY + "Membro do Clan '" + member.getClan().getColoredTag() + ChatColor.GRAY + "'");
         item.addLore(ChatColor.GRAY + "Cargo: " + member.getRole().getFullName());
         item.addLore(ChatColor.GRAY + "Kills/Deaths: " + member.getPlayerStats().getKills() + "/" + member.getPlayerStats().getDeaths());
         item.addLore(ChatColor.GRAY + "KDR: " + member.getPlayerStats().getFormattedKDR());
-        item.addLore(ChatColor.GRAY + "Se juntou em: " + DateTimeFormatter.ofPattern(ClanSettings.DATE_FORMAT_PATTERN).format(member.getJoinedDate()));
+        item.addLore(ChatColor.GRAY + "Juntou-se em: " + DateTimeFormatter.ofPattern(ClanSettings.DATE_FORMAT_PATTERN).format(member.getJoinedDate()));
 
         inventory.setItem(13, item.build());
+
+        return inventory;
+    }
+
+    public static Inventory getClanStatsMenu(Clan clan) {
+        Inventory inventory = Bukkit.createInventory(null, 9*3, StringUtils.replace(CLAN_STATS_MENU, "%%clan_tag%%", clan.getColoredTag()));
+
+        for (int i = 0; i < 27; i++) {
+            if (i == 13) continue;
+            inventory.setItem(i, GLASS);
+        }
+
+        ItemBuilder item = new ItemBuilder(Material.SKULL_ITEM, 1, (short) 3);
+        item.setSkullOwner(clan.getLeaderName());
+        item.withName(ChatColor.AQUA + ">> " + ChatColor.YELLOW + "'" + clan.getColoredTag() + ChatColor.YELLOW + "' " + ChatColor.AQUA + "<<");
+        item.addLore(" ");
+        item.addLore(ChatColor.GRAY + "Criador do Clan: " + clan.getCreatorName());
+        item.addLore(ChatColor.GRAY + "Líder atual: " + clan.getLeaderName());
+        item.addLore(ChatColor.GRAY + "Nome: " + clan.getName());
+        item.addLore(ChatColor.GRAY + "Kills/Deaths, KDR: " + clan.getKills() + "/" + clan.getDeaths() + ", " + clan.getKDR());
+        item.addLore(ChatColor.GRAY + "Aliados: " + "[" + ChatColor.GREEN + clan.getFormattedAllies(',') + ChatColor.GRAY + "]");
+        item.addLore(ChatColor.GRAY + "Rivais: " + "[" + ChatColor.RED + clan.getFormattedRivals(',') + ChatColor.GRAY + "]");
+        item.addLore(ChatColor.GRAY + "Data de Criação: " + DateTimeFormatter.ofPattern(ClanSettings.DATE_FORMAT_PATTERN).format(clan.getCreatedDate()));
+        item.addLore(new String[] { "", ChatColor.GRAY + "Membros:" });
+
+        for (ClanMember members : clan.getMembers()) {
+            item.addLore((members.isOnline() ? ChatColor.GREEN : ChatColor.RED) + "  " + SQUARE_CODE /* The representative square */ + " " + ChatColor.GRAY + members.getName());
+        }
+
+        inventory.setItem(13, item.build());
+
+        return inventory;
+    }
+
+    public static Inventory getClanMembersMenu(Clan clan) {
+        Inventory inventory = Bukkit.createInventory(null, 9*6, CLAN_MEMBERS_MENU);
+
+        for (int i : CLAN_MEMBERS_GLASSES_SLOTS) {
+            inventory.setItem(i, GLASS);
+        }
+
+        for (ClanMember members : clan.getMembers()) {
+            ItemBuilder item = new ItemBuilder(Material.SKULL_ITEM, 1, (short) 3);
+            item.setSkullOwner(members.getName());
+
+            item.withName(ChatColor.YELLOW + members.getName());
+            item.addLore(ChatColor.GRAY + "Cargo: " + members.getRole().getFullName());
+            item.addLore(ChatColor.GRAY + "Kills/Deaths: " + members.getPlayerStats().getKills() + "/" + members.getPlayerStats().getDeaths());
+            item.addLore(ChatColor.GRAY + "KDR: " + members.getPlayerStats().getFormattedKDR());
+
+            inventory.addItem(item.build());
+        }
+
+        inventory.setItem(49, new ItemBuilder(Material.ARROW).withName(ChatColor.GREEN + "Fechar").withLore(ChatColor.GRAY + "Clique aqui para fechar.").build());
 
         return inventory;
     }
