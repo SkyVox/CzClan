@@ -174,10 +174,24 @@ public class ClanCmd implements CommandExecutor {
             case "PROMOVER":
             case "PROMOTE":
                 executed = true;
+
+                if (member != null && member.hasClan()) {
+                    clan = member.getClan();
+                }
+
+                // Execute promote command.
+                CommandHandle.promote(player, member, clan, args);
                 break;
             case "REBAIXAR":
             case "DEMOTE":
                 executed = true;
+
+                if (member != null && member.hasClan()) {
+                    clan = member.getClan();
+                }
+
+                // Execute demote command.
+                CommandHandle.demote(player, member, clan, args);
                 break;
             case "LISTA":
             case "LIST":
@@ -190,6 +204,13 @@ public class ClanCmd implements CommandExecutor {
             case "EXPULSAR":
             case "KICK":
                 executed = true;
+
+                if (member != null && member.hasClan()) {
+                    clan = member.getClan();
+                }
+
+                // Execute demote command.
+                CommandHandle.kick(player, member, clan, args);
                 break;
             case "DESFAZER":
             case "EXCLUIR":

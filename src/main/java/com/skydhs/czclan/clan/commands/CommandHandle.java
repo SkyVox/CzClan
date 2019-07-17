@@ -3,6 +3,7 @@ package com.skydhs.czclan.clan.commands;
 import com.skydhs.czclan.clan.Core;
 import com.skydhs.czclan.clan.FileUtils;
 import com.skydhs.czclan.clan.manager.ClanManager;
+import com.skydhs.czclan.clan.manager.ClanRole;
 import com.skydhs.czclan.clan.manager.ClanSettings;
 import com.skydhs.czclan.clan.manager.objects.Clan;
 import com.skydhs.czclan.clan.manager.objects.ClanMember;
@@ -95,5 +96,88 @@ public class CommandHandle {
         }
 
         core.getAddon().commandMembers(player, clan);
+    }
+
+    public static void promote(Player player, ClanMember member, Clan clan, String[] args) {
+        if (clan == null || clan.isNull()) {
+            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.not-in-clan").getColored());
+            return;
+        }
+
+        if (args.length < 2) {
+            player.sendMessage(file.getString(CONFIG, "Commands.promote-member-help").getColored());
+            return;
+        }
+
+        if (!member.getRole().isAtLeast(ClanRole.LEADER)) {
+            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.role-required").getColoredString(new String[] { "%role_name%" }, new String[] { ClanRole.LEADER.getFullName() }));
+            return;
+        }
+
+        if (player.getName().equalsIgnoreCase(args[1])) {
+            player.sendMessage(file.getString(CONFIG, "Commands.cannot-execute-yourself").getColored());
+            return;
+        }
+
+        String target = args[1];
+        ClanMember targetMember = clan.getMember(target);
+
+        // Then, try to promote this player.
+        clan.promoteMember(member, targetMember);
+    }
+
+    public static void demote(Player player, ClanMember member, Clan clan, String[] args) {
+        if (clan == null || clan.isNull()) {
+            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.not-in-clan").getColored());
+            return;
+        }
+
+        if (args.length < 2) {
+            player.sendMessage(file.getString(CONFIG, "Commands.demote-member-help").getColored());
+            return;
+        }
+
+        if (!member.getRole().isAtLeast(ClanRole.LEADER)) {
+            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.role-required").getColoredString(new String[] { "%role_name%" }, new String[] { ClanRole.LEADER.getFullName() }));
+            return;
+        }
+
+        if (player.getName().equalsIgnoreCase(args[1])) {
+            player.sendMessage(file.getString(CONFIG, "Commands.cannot-execute-yourself").getColored());
+            return;
+        }
+
+        String target = args[1];
+        ClanMember targetMember = clan.getMember(target);
+
+        // Then, try to demote this player.
+        clan.demoteMember(member, targetMember);
+    }
+
+    public static void kick(Player player, ClanMember member, Clan clan, String[] args) {
+        if (clan == null || clan.isNull()) {
+            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.not-in-clan").getColored());
+            return;
+        }
+
+        if (args.length < 2) {
+            player.sendMessage(file.getString(CONFIG, "Commands.kick-member-help").getColored());
+            return;
+        }
+
+        if (!member.getRole().isAtLeast(ClanRole.OFFICER)) {
+            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.role-required").getColoredString(new String[] { "%role_name%" }, new String[] { ClanRole.OFFICER.getFullName() }));
+            return;
+        }
+
+        if (player.getName().equalsIgnoreCase(args[1])) {
+            player.sendMessage(file.getString(CONFIG, "Commands.cannot-execute-yourself").getColored());
+            return;
+        }
+
+        String target = args[1];
+        ClanMember targetMember = clan.getMember(target);
+        clan.removeMember(targetMember);
+        // TODO, Update @ClanMember, remove his clan.
     }
 }

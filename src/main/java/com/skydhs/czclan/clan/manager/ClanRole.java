@@ -57,4 +57,24 @@ public enum ClanRole {
     public boolean isMoreThan(ClanRole role) {
         return this.ordinal() > role.ordinal();
     }
+
+    public ClanRole getNext() {
+        char id = this.id;
+        int nextId = (int) id + 1;
+
+        ClanRole role = getById((char) nextId);
+        if (role == null) return ClanRole.LEADER;
+        return role;
+    }
+
+    public ClanRole getPrevious() {
+        char id = this.id;
+        int previousId = (int) id - 1;
+
+        if (previousId < 0) return ClanRole.MEMBER;
+
+        ClanRole role = getById((char) previousId);
+        if (role == null) return ClanRole.MEMBER;
+        return role;
+    }
 }

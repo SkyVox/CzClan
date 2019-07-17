@@ -1,6 +1,7 @@
 package com.skydhs.czclan.clan.manager.objects;
 
 import com.skydhs.czclan.addon.clan.ClanAddon;
+import com.skydhs.czclan.clan.FileUtils;
 import com.skydhs.czclan.clan.manager.ClanManager;
 import com.skydhs.czclan.clan.manager.ClanRole;
 import com.skydhs.czclan.clan.manager.ClanSettings;
@@ -345,7 +346,15 @@ public class Clan implements ClanAddon {
         return new ArrayList<>(topMembers);
     }
 
-    public ClanMember getMember(UUID uuid) {
+    public Boolean isMember(final String name) {
+        for (ClanMember members : getMembers()) {
+            if (StringUtils.equalsIgnoreCase(name, members.getName())) return true;
+        }
+
+        return false;
+    }
+
+    public ClanMember getMember(final UUID uuid) {
         for (ClanMember members : getMembers()) {
             if (StringUtils.equals(uuid.toString(), members.getUniqueId().toString())) return members;
         }
@@ -353,7 +362,7 @@ public class Clan implements ClanAddon {
         return null;
     }
 
-    public ClanMember getMember(String name) {
+    public ClanMember getMember(final String name) {
         for (ClanMember members : getMembers()) {
             if (StringUtils.equals(name, members.getName())) return members;
         }
@@ -378,6 +387,7 @@ public class Clan implements ClanAddon {
 
     public void removeMember(ClanMember member) {
         this.members.remove(member);
+        member.
         this.update();
     }
 
@@ -404,6 +414,38 @@ public class Clan implements ClanAddon {
         }
 
         this.update();
+    }
+
+    public void promoteMember(ClanMember member, ClanMember target) {
+        if (target.getRole().getId() == ClanRole.LEADER.getId()) return;
+
+        if (target.getRole().isAtLeast(ClanRole.OFFICER)) {
+            demoteMember(target, member);
+        }
+
+        ClanRole role = target.getRole().getNext();
+        target.setRole(role);
+
+        for (String str : FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Messages.promote-player-broadcast").getList(null, this, new String[] { "%target_name%", "%role_name%" }, new String[] { target.getName(), role.getFullName() })) {
+            sendMessage(str);
+        }
+
+        member.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.promote-player-sender").getString(member.getPlayer(), this, new String[] { "%target_name%", "%role_name%" }, new String[] { target.getName(), role.getFullName() }));
+        target.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.promote-player-sender").getString(target.getPlayer(), this, new String[] { "%target_name%", "%role_name%" }, new String[] { target.getName(), role.getFullName() }));
+    }
+
+    public void demoteMember(ClanMember member, ClanMember target) {
+        if (target.getRole().getId() == ClanRole.MEMBER.getId()) return;
+
+        ClanRole role = target.getRole().getPrevious();
+        target.setRole(role);
+
+        for (String str : FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Messages.demote-player-broadcast").getList(null, this, new String[] { "%target_name%", "%role_name%" }, new String[] { target.getName(), role.getFullName() })) {
+            sendMessage(str);
+        }
+
+        member.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.demote-player-sender").getString(member.getPlayer(), this, new String[] { "%target_name%", "%role_name%" }, new String[] { target.getName(), role.getFullName() }));
+        target.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.demote-player-sender").getString(target.getPlayer(), this, new String[] { "%target_name%", "%role_name%" }, new String[] { target.getName(), role.getFullName() }));
     }
 
     public List<String> getClanAllies() {

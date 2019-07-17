@@ -242,11 +242,16 @@ public class FileUtils {
             return setPlaceholder(placeholders, replaces);
         }
 
+        public String getString(Player player, Clan clan, String[] placeholders, String[] replaces) {
+            this.str = getString(player, clan);
+            return setPlaceholder(placeholders, replaces);
+        }
+
         public String getString(Player player, Clan clan) {
             if (str == null || str.isEmpty()) return str;
             if (clan == null) return getColored();
 
-            str = ChatColor.translateAlternateColorCodes('&', StringUtils.replaceEach(str, new String[] {
+            String ret = ChatColor.translateAlternateColorCodes('&', StringUtils.replaceEach(str, new String[] {
                     // Clan Placeholders.
                     "%sky_clan_creator_uuid%",
                     "%sky_clan_creator_name%",
@@ -285,7 +290,7 @@ public class FileUtils {
                     player == null ? "" : player.getName()
             }));
 
-            return str;
+            return ret;
         }
 
         public String getColoredString(String[] placeholders, String[] replaces) {
@@ -333,6 +338,11 @@ public class FileUtils {
         }
 
         public String[] getList(String[] placeholders, String[] replaces) {
+            return setPlaceholder(placeholders, replaces);
+        }
+
+        public String[] getList(Player player, Clan clan, String[] placeholders, String[] replaces) {
+            this.str = getList(player, clan);
             return setPlaceholder(placeholders, replaces);
         }
 

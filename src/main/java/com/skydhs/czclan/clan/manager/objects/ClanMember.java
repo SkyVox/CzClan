@@ -122,6 +122,10 @@ public class ClanMember implements Comparable<ClanMember> {
         return role;
     }
 
+    public void setRole(ClanRole role) {
+        this.role = role;
+    }
+
     public ZonedDateTime getJoinedDate() {
         return joined;
     }

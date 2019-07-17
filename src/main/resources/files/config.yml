@@ -93,10 +93,12 @@ Roles:
 
 # Mensagens.
 Messages:
+  cannot-execute-yourself: "&cVocê não pode realizar isso para sí mesmo."
   role-required: "&cVocê precisa ser %role_name% ou superior."
   not-in-clan: "&cVocê não possui Clan."
   clan-not-found: "&cNão foi possível encontrar este Clan."
   target-not-found: "&cNão foi possível encontrar este jogador."
+  player-not-online: "&cEste jogador não está online."
   # Criação/Editar clan.
   already-has-clan: "&cVocê já possui clan."
   invalid-name-or-tag: "&cEste nome ou tag não é válido."
@@ -108,6 +110,19 @@ Messages:
   clan-created: "&aVocê criou um novo clan."
   # Clan player comando.
   target-clan-not-found: "&cEste jogador não possui clan."
+  # Comando de promover/rebaixar.
+  promote-player-sender: "&7Você promoveu o jogador %target_name% para %role_name%!" # Quem promoveu o jogador.
+  promote-player-target: "&6Você foi promovido para %role_name%&6!" # Jogador que foi promovido.
+  promote-player-broadcast: # Para todos os membros do Clan.
+    - '&8--------------------'
+    - '&7O Jogador &3%target_name% &7foi promovido para %role_name%&7!'
+    - '&8--------------------'
+  demote-player-sender: "&7Você rebaixou o jogador %target_name% para %role_name%!" # Quem rebaixou o jogador.
+  demote-player-target: "&6Você foi rebaixado para %role_name%&6!" # Jogador que foi rebaixado.
+  demote-player-broadcast:
+    - '&8--------------------'
+    - '&7O Jogador &3%target_name% &7foi rebaixado para %role_name%&7!'
+    - '&8--------------------'
 
 Broadcast:
   new-clan-created: # Para remover esta mensagem, apenas apague as linhas abaixo e adicione "{}" na frente de "new-clan-created:";
@@ -120,6 +135,9 @@ Commands:
   only-players: "&cApenas jogadores podem executar este comando."
 
   create-clan-help: "&cUse: &e/clan criar/create <nome> <tag> <descrição> &b: Criar novo clan."
+  promote-member-help: "&cUse: &e/clan promover/promote <jogador> &b: Promover um jogador."
+  demote-member-help: "&cUse: &e/clan rebaixar/demote <jogador> &b: Rebaixar o cargo de um jogador."
+  kick-member-help: "&cUse: &e/clan expulsar/kick <jogador> &b: Expulsar um jogador do clan."
 
   # Comando de aliados.
   no-allies-found: "&cNão foi possível encontrar aliados. (Seu Clan não possui aliados)."

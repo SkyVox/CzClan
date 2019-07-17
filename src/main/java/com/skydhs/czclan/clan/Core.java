@@ -50,6 +50,15 @@ public class Core extends JavaPlugin {
             database.enable(file.getString("MySQL.host"), file.getInt("MySQL.port"), file.getString("MySQL.database"), file.getString("MySQL.username"), file.getString("MySQL.password"));
         }
 
+        char h = '0';
+
+        for (int i = 0; i < 10; i++) {
+//            int a = (int) h+1;
+//            h = (char)a;
+
+            System.out.println("Char == '" + (h+1) + "';");
+        }
+
         this.numberFormat = new NumberFormat(FileUtils.get().getFile(FileUtils.Files.CONFIG).get());
         new ClanManager(this);
         // For the last, we should call the Addon class.
