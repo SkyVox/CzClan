@@ -387,7 +387,6 @@ public class Clan implements ClanAddon {
 
     public void removeMember(ClanMember member) {
         this.members.remove(member);
-        member.
         this.update();
     }
 
