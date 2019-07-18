@@ -6,6 +6,7 @@ import com.skydhs.czclan.clan.Log;
 import com.skydhs.czclan.clan.database.DBManager;
 import com.skydhs.czclan.clan.manager.objects.Clan;
 import com.skydhs.czclan.clan.manager.objects.ClanMember;
+import com.skydhs.czclan.clan.manager.objects.GeneralStats;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -38,6 +39,15 @@ public class ClanManager {
         this.loadedMembers = new HashMap<>(512);
 
         setupTask(core);
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (Player players : Bukkit.getOnlinePlayers()) {
+                    ClanManager.getManager().loadPlayer(players);
+                }
+            }
+        }.runTaskAsynchronously(core);
     }
 
     /**
@@ -175,7 +185,7 @@ public class ClanManager {
             if (member.getRole().isAtLeast(ClanRole.LEADER)) return member;
         }
 
-        return null;
+        return members.get(0);
     }
 
     public boolean isLocationEquals(Location one, Location two) {
@@ -281,7 +291,11 @@ public class ClanManager {
         }
 
         ClanMember ret = DBManager.getDBManager().getDBConnection().getClanMember(player.getName(), AccessType.NAME);
-        if (ret == null) return null;
+        if (ret == null) {
+            ret = new ClanMember(player, null, ClanRole.MEMBER, ZonedDateTime.now(), new GeneralStats());
+            ret.cache();
+            return ret;
+        }
 
         ret.setPlayer(player);
         ret.cache();

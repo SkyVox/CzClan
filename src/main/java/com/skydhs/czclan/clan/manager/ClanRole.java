@@ -4,21 +4,21 @@ import com.skydhs.czclan.clan.FileUtils;
 import org.bukkit.ChatColor;
 
 public enum ClanRole {
-    LEADER('0', FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.owner.name").get(), FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.owner.color").get()),
-    OFFICER('1', FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.officer.name").get(), FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.officer.color").get()),
-    MEMBER('2', FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.member.name").get(), FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.member.color").get());
+    MEMBER(0, FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.member.name").get(), FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.member.color").get()),
+    OFFICER(1, FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.officer.name").get(), FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.officer.color").get()),
+    LEADER(2, FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.owner.name").get(), FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.owner.color").get());
 
-    private char id;
+    private int id;
     private String translated;
     private String color;
 
-    ClanRole(char id, String translated, String color) {
+    ClanRole(int id, String translated, String color) {
         this.id = id;
         this.translated = translated;
         this.color = color;
     }
 
-    public static ClanRole getById(char id) {
+    public static ClanRole getById(int id) {
         for (ClanRole value : ClanRole.values()) {
             if (value.getId() == id) return value;
         }
@@ -26,7 +26,7 @@ public enum ClanRole {
         return null;
     }
 
-    public char getId() {
+    public int getId() {
         return id;
     }
     
@@ -59,21 +59,18 @@ public enum ClanRole {
     }
 
     public ClanRole getNext() {
-        char id = this.id;
-        int nextId = (int) id + 1;
+        int nextId = id + 1;
 
-        ClanRole role = getById((char) nextId);
+        ClanRole role = getById(nextId);
         if (role == null) return ClanRole.LEADER;
         return role;
     }
 
     public ClanRole getPrevious() {
-        char id = this.id;
-        int previousId = (int) id - 1;
+        int id = (this.id-1);
+        if (id <= 0) return ClanRole.MEMBER;
 
-        if (previousId < 0) return ClanRole.MEMBER;
-
-        ClanRole role = getById((char) previousId);
+        ClanRole role = getById(id);
         if (role == null) return ClanRole.MEMBER;
         return role;
     }

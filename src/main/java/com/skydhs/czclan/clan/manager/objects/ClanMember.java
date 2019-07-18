@@ -1,5 +1,6 @@
 package com.skydhs.czclan.clan.manager.objects;
 
+import com.skydhs.czclan.clan.FileUtils;
 import com.skydhs.czclan.clan.manager.ClanManager;
 import com.skydhs.czclan.clan.manager.ClanRole;
 import org.apache.commons.lang.StringUtils;
@@ -42,6 +43,16 @@ public class ClanMember implements Comparable<ClanMember> {
      *   we can delete this invite.
      */
     private Map<String, ZonedDateTime> pendingInvites;
+
+    public ClanMember(Player player, Clan clan, ClanRole role, ZonedDateTime joined, GeneralStats stats) {
+        this.uuid = player.getUniqueId();
+        this.name = player.getName();
+        this.tag = (clan == null ? null : clan.getUncoloredTag());
+        this.clan = clan;
+        this.role = role;
+        this.joined = joined;
+        this.stats = stats;
+    }
 
     public ClanMember(UUID uuid, String name, Clan clan, ClanRole role, ZonedDateTime joined, GeneralStats stats) {
         this.uuid = uuid;
@@ -144,17 +155,22 @@ public class ClanMember implements Comparable<ClanMember> {
 
     public Boolean hasPendingInvites(String tag) {
         if (!hasPendingInvites()) return false;
-        return getPendingInvites().containsKey(tag);
+
+        for (String str : getPendingInvites().keySet()) {
+            if (StringUtils.equalsIgnoreCase(tag, str)) return true;
+        }
+
+        return false;
     }
 
     public void invitePlayer(Clan clan) {
         if (hasClan()) return;
-        if (!hasPendingInvites(clan.getUncoloredTag())) return;
+        if (hasPendingInvites(clan.getUncoloredTag())) return;
 
         if (pendingInvites == null) this.pendingInvites = new HashMap<>(12);
 
         getPendingInvites().put(clan.getUncoloredTag(), ZonedDateTime.now());
-        sendMessage("You were invited to: '" + clan.getColoredTag() + "' You have 5 minutes to accept. // DELETE THIS."); // TODO, get this message from Configuration file.
+        sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.invite-player-target").getString(player, clan));
     }
 
     /**
@@ -170,6 +186,10 @@ public class ClanMember implements Comparable<ClanMember> {
     public void changeClan(Clan oldClan, Clan clan, GeneralStats stats) {
         if (oldClan != null && clan != null) {
             if (oldClan.equals(clan)) return;
+        }
+
+        if (this.pendingInvites != null && clan != null) {
+            this.pendingInvites.remove(clan.getUncoloredTag());
         }
 
         this.tag = (clan == null ? null : clan.getUncoloredTag());

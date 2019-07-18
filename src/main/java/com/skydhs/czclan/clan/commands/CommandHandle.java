@@ -7,13 +7,15 @@ import com.skydhs.czclan.clan.manager.ClanRole;
 import com.skydhs.czclan.clan.manager.ClanSettings;
 import com.skydhs.czclan.clan.manager.objects.Clan;
 import com.skydhs.czclan.clan.manager.objects.ClanMember;
+import com.skydhs.czclan.clan.manager.objects.GeneralStats;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public class CommandHandle {
     private static FileUtils file = FileUtils.get();
     private static final FileUtils.Files CONFIG = FileUtils.Files.CONFIG;
 
-    public static boolean create(Player player, ClanMember member, String[] args) {
+    static boolean create(Player player, ClanMember member, String[] args) {
         if (args.length <= 2) {
             player.sendMessage(file.getString(CONFIG, "Commands.create-clan-help").getColored());
             return false;
@@ -62,11 +64,11 @@ public class CommandHandle {
         return true;
     }
 
-    public static void top(Core core, Player player, String[] args) {
+    static void top(Core core, Player player, String[] args) {
         core.getAddon().commandTop(player);
     }
 
-    public static void player(Core core, Player player, ClanMember member) {
+    static void player(Core core, Player player, ClanMember member) {
         if (member == null) {
             player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.target-not-found").getColored());
             return;
@@ -80,7 +82,7 @@ public class CommandHandle {
         core.getAddon().commandPlayer(player, member);
     }
 
-    public static void clan(Core core, Player player, Clan clan) {
+    static void clan(Core core, Player player, Clan clan) {
         if (clan == null || clan.isNull()) {
             player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.clan-not-found").getColored());
             return;
@@ -89,7 +91,7 @@ public class CommandHandle {
         core.getAddon().commandClan(player, clan);
     }
 
-    public static void members(Core core, Player player, Clan clan) {
+    static void members(Core core, Player player, Clan clan) {
         if (clan == null || clan.isNull()) {
             player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.clan-not-found").getColored());
             return;
@@ -98,7 +100,7 @@ public class CommandHandle {
         core.getAddon().commandMembers(player, clan);
     }
 
-    public static void promote(Player player, ClanMember member, Clan clan, String[] args) {
+    static void promote(Player player, ClanMember member, Clan clan, String[] args) {
         if (clan == null || clan.isNull()) {
             player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.not-in-clan").getColored());
             return;
@@ -115,7 +117,7 @@ public class CommandHandle {
         }
 
         if (player.getName().equalsIgnoreCase(args[1])) {
-            player.sendMessage(file.getString(CONFIG, "Commands.cannot-execute-yourself").getColored());
+            player.sendMessage(file.getString(CONFIG, "Messages.cannot-execute-yourself").getColored());
             return;
         }
 
@@ -126,7 +128,7 @@ public class CommandHandle {
         clan.promoteMember(member, targetMember);
     }
 
-    public static void demote(Player player, ClanMember member, Clan clan, String[] args) {
+    static void demote(Player player, ClanMember member, Clan clan, String[] args) {
         if (clan == null || clan.isNull()) {
             player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.not-in-clan").getColored());
             return;
@@ -143,7 +145,7 @@ public class CommandHandle {
         }
 
         if (player.getName().equalsIgnoreCase(args[1])) {
-            player.sendMessage(file.getString(CONFIG, "Commands.cannot-execute-yourself").getColored());
+            player.sendMessage(file.getString(CONFIG, "Messages.cannot-execute-yourself").getColored());
             return;
         }
 
@@ -154,7 +156,78 @@ public class CommandHandle {
         clan.demoteMember(member, targetMember);
     }
 
-    public static void kick(Player player, ClanMember member, Clan clan, String[] args) {
+    static void invite(Player player, ClanMember member, Clan clan, String[] args) {
+        if (clan == null || clan.isNull()) {
+            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.not-in-clan").getColored());
+            return;
+        }
+
+        if (args.length < 2) {
+            player.sendMessage(file.getString(CONFIG, "Commands.invite-member-help").getColored());
+            return;
+        }
+
+        if (!member.getRole().isAtLeast(ClanRole.OFFICER)) {
+            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.role-required").getColoredString(new String[] { "%role_name%" }, new String[] { ClanRole.OFFICER.getFullName() }));
+            return;
+        }
+
+        if (player.getName().equalsIgnoreCase(args[1])) {
+            player.sendMessage(file.getString(CONFIG, "Messages.cannot-execute-yourself").getColored());
+            return;
+        }
+
+        String target = args[1];
+        Bukkit.broadcastMessage("Target == " + target);
+
+        if (clan.isMember(target)) {
+            player.sendMessage(file.getString(CONFIG, "Messages.target-is-member-already").getColored());
+            return;
+        }
+
+        ClanMember targetMember = ClanManager.getManager().getMember(target);
+        targetMember.invitePlayer(clan);
+
+        player.sendMessage(file.getString(CONFIG, "Messages.invite-player-sender").getString(player, clan));
+    }
+
+    static void accept(Player player, ClanMember member, String[] args) {
+        if (member == null) return;
+        if (member.hasClan()) {
+            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.already-has-clan").getColored());
+            return;
+        }
+
+        if (args.length < 2) {
+            player.sendMessage(file.getString(CONFIG, "Commands.accept-member-help").getColored());
+            return;
+        }
+
+        String tag = ClanManager.getManager().stripColor(args[1]);
+
+        if (!member.hasPendingInvites(tag)) {
+            player.sendMessage(file.getString(CONFIG, "Messages.you-were-not-invited").getColored());
+            return;
+        }
+
+        Clan clan = ClanManager.getManager().getClan(tag);
+
+        if (clan == null || clan.isNull()) {
+            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.not-in-clan").getColored());
+            return;
+        }
+
+        member.changeClan(null, clan, new GeneralStats());
+        clan.addMember(member);
+
+        player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.join-clan-target").getString(player, clan));
+
+        for (String str : FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Messages.join-clan-broadcast").getList(null, clan, new String[] { "%target_name%" }, new String[] { player.getName() })) {
+            clan.sendMessage(str);
+        }
+    }
+
+    static void kick(Player player, ClanMember member, Clan clan, String[] args) {
         if (clan == null || clan.isNull()) {
             player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.not-in-clan").getColored());
             return;
@@ -171,13 +244,36 @@ public class CommandHandle {
         }
 
         if (player.getName().equalsIgnoreCase(args[1])) {
-            player.sendMessage(file.getString(CONFIG, "Commands.cannot-execute-yourself").getColored());
+            player.sendMessage(file.getString(CONFIG, "Messages.cannot-execute-yourself").getColored());
             return;
         }
 
         String target = args[1];
         ClanMember targetMember = clan.getMember(target);
+
+        if (targetMember == null || !targetMember.hasClan() || !clan.equals(targetMember.getClan())) {
+            player.sendMessage(file.getString(CONFIG, "Messages.target-not-on-same-clan").getColoredString(new String[] { "%target_name%" }, new String[] { target }));
+            return;
+        }
+
         clan.removeMember(targetMember);
-        // TODO, Update @ClanMember, remove his clan.
+        targetMember.changeClan(clan, null, new GeneralStats());
+
+        player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.player-kicked-sender").getString(player, clan, new String[] { "%target_name%" }, new String[] { target }));
+        targetMember.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.player-kicked-target").getString(null, clan, new String[] { "%player_name%" }, new String[] { player.getName() }));
+    }
+
+    static void disband(Player player, ClanMember member, Clan clan) {
+        if (clan == null || clan.isNull()) {
+            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.not-in-clan").getColored());
+            return;
+        }
+
+        if (!member.getRole().isAtLeast(ClanRole.LEADER)) {
+            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.role-required").getColoredString(new String[] { "%role_name%" }, new String[] { ClanRole.LEADER.getFullName() }));
+            return;
+        }
+
+        clan.disband();
     }
 }

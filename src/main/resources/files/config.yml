@@ -94,13 +94,14 @@ Roles:
 # Mensagens.
 Messages:
   cannot-execute-yourself: "&cVocê não pode realizar isso para sí mesmo."
-  role-required: "&cVocê precisa ser %role_name% ou superior."
+  role-required: "&cVocê precisa ser %role_name% &cou superior."
   not-in-clan: "&cVocê não possui Clan."
   clan-not-found: "&cNão foi possível encontrar este Clan."
   target-not-found: "&cNão foi possível encontrar este jogador."
   player-not-online: "&cEste jogador não está online."
-  # Criação/Editar clan.
+  target-not-on-same-clan: "&cEste jogador não é membro do seu Clan."
   already-has-clan: "&cVocê já possui clan."
+  # Criação/Editar clan.
   invalid-name-or-tag: "&cEste nome ou tag não é válido."
   name-already-in-use: "&cEste nome já está em uso."
   tag-already-in-use: "&cEsta tag já está em uso."
@@ -119,15 +120,36 @@ Messages:
     - '&8--------------------'
   demote-player-sender: "&7Você rebaixou o jogador %target_name% para %role_name%!" # Quem rebaixou o jogador.
   demote-player-target: "&6Você foi rebaixado para %role_name%&6!" # Jogador que foi rebaixado.
-  demote-player-broadcast:
+  demote-player-broadcast: # Para todos os membros do Clan.
     - '&8--------------------'
     - '&7O Jogador &3%target_name% &7foi rebaixado para %role_name%&7!'
     - '&8--------------------'
+  # Comando de convidar.
+  target-is-member-already: "&cEste jogador já faz parte do seu Clan."
+  invite-player-sender: "&7Você convidou o jogador %target_name% para seu Clan, ele tem &c5min &7para aceitar." # Quem convidou o jogador.
+  invite-player-target: "&8Você foi convidado para juntar-se à %sky_clan_tag%&8. &cVocê tem 5min para aceitar." # Jogador que foi convidado.
+  # Comando de aceitar clan.
+  you-were-not-invited: "&cVocê não foi convidado."
+  join-clan-target: "&7Você agora é um novo membro do Clan ''%sky_clan_tag%''" # Jogador que entrou no clan.
+  join-clan-broadcast: # Para todos os membros do Clan.
+    - '&8O Jogador %target_name% juntou-se ao Clan!'
+  # Comando de expulsar.
+  player-kicked-sender: "&aVocê expulsou o jogador %target_name%!" # Quem expulsou o jogador.
+  player-kicked-target: "&cVocê foi expulso do Clan!" # Jogador que foi expulso.
+  player-kicked-broadcast: # Para todos os membros do Clan.
+    - '&cO Jogador %target_name% foi expulso do Clan por %player_name%!'
+  # Comando de excluir.
+  clan-disbanded-broadcast: # Para todos os membros do Clan.
+    - '&cEste Clan foi excluido!'
 
 Broadcast:
   new-clan-created: # Para remover esta mensagem, apenas apague as linhas abaixo e adicione "{}" na frente de "new-clan-created:";
     - '&8--------------------'
     - '&aNovo clan criado, NOME: ''%sky_clan_name%'', TAG: ''%sky_clan_tag%''.'
+    - '&8--------------------'
+  clan-disbanded:
+    - '&8--------------------'
+    - '&cClan, ''%sky_clan_tag%'' &cfoi excluido!'
     - '&8--------------------'
 
 # Mensagens dos comandos.
@@ -137,6 +159,8 @@ Commands:
   create-clan-help: "&cUse: &e/clan criar/create <nome> <tag> <descrição> &b: Criar novo clan."
   promote-member-help: "&cUse: &e/clan promover/promote <jogador> &b: Promover um jogador."
   demote-member-help: "&cUse: &e/clan rebaixar/demote <jogador> &b: Rebaixar o cargo de um jogador."
+  invite-member-help: "&cUse: &e/clan convidar/invite &b: Convidar um jogador para o clan."
+  accept-member-help: "&cUse: &e/clan aceitar/accept <tag> &b: Aceitar um convite de clan."
   kick-member-help: "&cUse: &e/clan expulsar/kick <jogador> &b: Expulsar um jogador do clan."
 
   # Comando de aliados.
@@ -167,9 +191,10 @@ Commands:
     - '&e/clan promover/promote <jogador> &b: Promover um jogador.'
     - '&e/clan rebaixar/demote <jogador> &b: Rebaixar o cargo de um jogador.'
     - '&e/clan lista/list &b: Ver a lista de clans criados.'
-    - '&e/clan convidar/invite &b: Convidar um jogador para o clan.'
+    - '&e/clan convidar/invite <jogador> &b: Convidar um jogador para o clan.'
+    - '&e/clan aceitar/accept <tag> &b: Aceitar um convite de clan.'
     - '&e/clan expulsar/kick <jogador> &b: Expulsar um jogador do clan.'
-    - '&e/clan desfazer/excluir/delete &b: Deleter o clan.'
+    - '&e/clan desfazer/excluir/disband &b: Deleter o clan.'
     - '&e/clan aliado/ally (add/adicionar&7-&eremover/del) &b: Adicionar/Remover um aliado.'
     - '&e/clan rival (add/adicionar&7-&eremover/del) &b: Adicionar/Remover um rival.'
     - '&e/clan pvp &b: Ativar/Desativar pvp entre os membros do clan.'

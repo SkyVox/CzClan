@@ -2,6 +2,7 @@ package com.skydhs.czclan.clan.manager.objects;
 
 import com.skydhs.czclan.addon.clan.ClanAddon;
 import com.skydhs.czclan.clan.FileUtils;
+import com.skydhs.czclan.clan.Log;
 import com.skydhs.czclan.clan.manager.ClanManager;
 import com.skydhs.czclan.clan.manager.ClanRole;
 import com.skydhs.czclan.clan.manager.ClanSettings;
@@ -388,6 +389,10 @@ public class Clan implements ClanAddon {
     public void removeMember(ClanMember member) {
         this.members.remove(member);
         this.update();
+
+        for (String str : FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Messages.promote-player-broadcast").getList(null, this, new String[] { "%target_name%" }, new String[] { member.getName() })) {
+            sendMessage(str);
+        }
     }
 
     public void removeMember(UUID uuid) {
@@ -395,6 +400,11 @@ public class Clan implements ClanAddon {
             if (StringUtils.equals(uuid.toString(), members.getUniqueId().toString())) {
                 this.members.remove(members);
                 this.update();
+
+                for (String str : FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Messages.promote-player-broadcast").getList(null, this, new String[] { "%target_name%" }, new String[] { members.getName() })) {
+                    sendMessage(str);
+                }
+
                 break;
             }
         }
@@ -430,7 +440,7 @@ public class Clan implements ClanAddon {
         }
 
         member.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.promote-player-sender").getString(member.getPlayer(), this, new String[] { "%target_name%", "%role_name%" }, new String[] { target.getName(), role.getFullName() }));
-        target.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.promote-player-sender").getString(target.getPlayer(), this, new String[] { "%target_name%", "%role_name%" }, new String[] { target.getName(), role.getFullName() }));
+        target.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.promote-player-target").getString(target.getPlayer(), this, new String[] { "%target_name%", "%role_name%" }, new String[] { target.getName(), role.getFullName() }));
     }
 
     public void demoteMember(ClanMember member, ClanMember target) {
@@ -444,7 +454,7 @@ public class Clan implements ClanAddon {
         }
 
         member.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.demote-player-sender").getString(member.getPlayer(), this, new String[] { "%target_name%", "%role_name%" }, new String[] { target.getName(), role.getFullName() }));
-        target.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.demote-player-sender").getString(target.getPlayer(), this, new String[] { "%target_name%", "%role_name%" }, new String[] { target.getName(), role.getFullName() }));
+        target.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.demote-player-target").getString(target.getPlayer(), this, new String[] { "%target_name%", "%role_name%" }, new String[] { target.getName(), role.getFullName() }));
     }
 
     public List<String> getClanAllies() {
@@ -579,15 +589,23 @@ public class Clan implements ClanAddon {
      * clan will be completely
      * deleted from our system.
      */
-    public void delete() {
+    public void disband() {
         ClanManager.getManager().getLoadedClans().remove(getUncoloredTag());
         ClanManager.getManager().getDeletedClans().add(getUncoloredTag());
 
+        String[] message = FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Messages.clan-disbanded-broadcast").getList(null, this);
+
         for (ClanMember members : getMembers()) {
+            for (String str : message) {
+                members.sendMessage(str);
+            }
+
             members.changeClan(this, null, new GeneralStats());
         }
 
-        sendMessage("Clan disbanded.  // REMOVE THIS."); // TODO, Get this message from config file.
+        for (String str : FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Broadcast.clan-disbanded").getList(null, this)) {
+            Log.sendPlayerMessages(str);
+        }
     }
 
     @Override

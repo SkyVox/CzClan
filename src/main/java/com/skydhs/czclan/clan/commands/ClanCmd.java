@@ -200,6 +200,20 @@ public class ClanCmd implements CommandExecutor {
             case "CONVIDAR":
             case "INVITE":
                 executed = true;
+
+                if (member != null && member.hasClan()) {
+                    clan = member.getClan();
+                }
+
+                // Execute invite command.
+                CommandHandle.invite(player, member, clan, args);
+                break;
+            case "ACEITAR":
+            case "ACCEPT":
+                executed = true;
+
+                // Execute accept command.
+                CommandHandle.accept(player, member, args);
                 break;
             case "EXPULSAR":
             case "KICK":
@@ -209,13 +223,20 @@ public class ClanCmd implements CommandExecutor {
                     clan = member.getClan();
                 }
 
-                // Execute demote command.
+                // Execute kick command.
                 CommandHandle.kick(player, member, clan, args);
                 break;
             case "DESFAZER":
             case "EXCLUIR":
-            case "DELETE":
+            case "DISBAND":
                 executed = true;
+
+                if (member != null && member.hasClan()) {
+                    clan = member.getClan();
+                }
+
+                // Execute disband command.
+                CommandHandle.disband(player, member, clan);
                 break;
             case "ALIADO":
             case "ALLY":

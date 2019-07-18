@@ -335,7 +335,7 @@ public class DBConnection {
             if (result.next()) {
                 String name = result.getString(2);
                 String tag = result.getString(3);
-                ClanRole role = ClanRole.getById(result.getString(4).charAt(0));
+                ClanRole role = ClanRole.getById(result.getInt(4));
                 ZonedDateTime joined = ZonedDateTime.parse(result.getString(5));
                 GeneralStats stats = new GeneralStats(result.getDouble(6), result.getInt(7), result.getInt(8));
                 return new ClanMember(uuid, name, tag, role, joined, stats);
@@ -374,7 +374,7 @@ public class DBConnection {
             if (result.next()) {
                 UUID uuid = UUID.fromString(result.getString(1));
                 String tag = result.getString(3);
-                ClanRole role = ClanRole.getById(result.getString(4).charAt(0));
+                ClanRole role = ClanRole.getById(result.getInt(4));
                 ZonedDateTime joined = ZonedDateTime.parse(result.getString(5));
                 GeneralStats stats = new GeneralStats(result.getDouble(6), result.getInt(7), result.getInt(8));
                 return new ClanMember(uuid, result.getString(2), tag, role, joined, stats);
@@ -414,7 +414,7 @@ public class DBConnection {
         executeUpdate(clan);
 
         // Try to create the clanMembers table.
-        final String clanMembers = "CREATE TABLE IF NOT EXISTS `" + DBManager.CLAN_MEMBERS + "` (`uuid` VARCHAR(36) NOT NULL, `name` VARCHAR(16) NOT NULL, `tag` VARCHAR(16), `role` CHAR(1), `joined` VARCHAR(32), `coins` DOUBLE(64,2), `kills` INT NOT NULL DEFAULT '0', `deaths` INT NOT NULL DEFAULT '0', PRIMARY KEY (`uuid`));";
+        final String clanMembers = "CREATE TABLE IF NOT EXISTS `" + DBManager.CLAN_MEMBERS + "` (`uuid` VARCHAR(36) NOT NULL, `name` VARCHAR(16) NOT NULL, `tag` VARCHAR(16), `role` INT, `joined` VARCHAR(32), `coins` DOUBLE(64,2), `kills` INT NOT NULL DEFAULT '0', `deaths` INT NOT NULL DEFAULT '0', PRIMARY KEY (`uuid`));";
         executeUpdate(clanMembers);
     }
 
