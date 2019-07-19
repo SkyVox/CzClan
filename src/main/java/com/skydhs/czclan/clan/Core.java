@@ -4,6 +4,8 @@ import com.skydhs.czclan.addon.Addon;
 import com.skydhs.czclan.clan.commands.ClanAdminCmd;
 import com.skydhs.czclan.clan.commands.ClanCmd;
 import com.skydhs.czclan.clan.database.DBManager;
+import com.skydhs.czclan.clan.listener.ClanGeneralListeners;
+import com.skydhs.czclan.clan.listener.PlayerDeathListener;
 import com.skydhs.czclan.clan.listener.PlayerJoinListener;
 import com.skydhs.czclan.clan.listener.PlayerQuitListener;
 import com.skydhs.czclan.clan.manager.ClanManager;
@@ -59,6 +61,8 @@ public class Core extends JavaPlugin {
         sendMessage("Loading commands and listeners...");
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerDeathListener(), this);
+        getServer().getPluginManager().registerEvents(new ClanGeneralListeners(), this);
         getServer().getPluginCommand("clan").setExecutor(new ClanCmd(this));
         getServer().getPluginCommand("clanadmin").setExecutor(new ClanAdminCmd());
 

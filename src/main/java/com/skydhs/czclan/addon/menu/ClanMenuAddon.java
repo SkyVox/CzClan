@@ -18,6 +18,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class ClanMenuAddon {
+    public static final String MAIN_MENU = ChatColor.GRAY + "Clan - %%main_menu%%";
     public static final String TOP_MENU = ChatColor.GRAY + "Classificação de Clans";
     public static final String PLAYER_STATS_MENU = ChatColor.GRAY + "Informações de %%player_name%%";
     public static final String CLAN_STATS_MENU = ChatColor.GRAY + "Informações do '%%clan_tag%%'";
@@ -31,7 +32,17 @@ public class ClanMenuAddon {
 
     private static final char SQUARE_CODE = '\u25A0';
 
-    public static Inventory getMainMenu() { return null; }
+    public static Inventory getMainMenu(ClanMember member) {
+        Inventory inventory = null;
+
+        if (member == null || !member.hasClan()) {
+            inventory = Bukkit.createInventory(null, 9*3, StringUtils.replace(MAIN_MENU, "%%main_menu%%", "Menu Principal"));
+        } else {
+            inventory = Bukkit.createInventory(null, 9*3, StringUtils.replace(MAIN_MENU, "%%main_menu%%", member.getClan().getColoredTag()));
+        }
+
+        return inventory;
+    }
 
     public static Inventory getTopClansMenu(Player player, ClanLeaderboard.LeaderboardType type) {
         List<Clan> leaderboard = ClanManager.getClanLeaderboard().getTopClans(type);

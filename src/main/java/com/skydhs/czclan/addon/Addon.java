@@ -28,6 +28,11 @@ public class Addon implements ClanAddon {
     }
 
     @Override
+    public void commandMain(Player player, ClanMember member) {
+        player.openInventory(ClanMenuAddon.getMainMenu(member));
+    }
+
+    @Override
     public void commandTop(Player player) {
         Inventory inventory = ClanMenuAddon.getTopClansMenu(player, ClanLeaderboard.LeaderboardType.KILLS);
 

@@ -8,12 +8,15 @@ import com.skydhs.czclan.clan.manager.ClanSettings;
 import com.skydhs.czclan.clan.manager.objects.Clan;
 import com.skydhs.czclan.clan.manager.objects.ClanMember;
 import com.skydhs.czclan.clan.manager.objects.GeneralStats;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public class CommandHandle {
     private static FileUtils file = FileUtils.get();
     private static final FileUtils.Files CONFIG = FileUtils.Files.CONFIG;
+
+    static void main(Core core, Player player, ClanMember member) {
+        core.getAddon().commandMain(player, member);
+    }
 
     static boolean create(Player player, ClanMember member, String[] args) {
         if (args.length <= 2) {
@@ -178,7 +181,6 @@ public class CommandHandle {
         }
 
         String target = args[1];
-        Bukkit.broadcastMessage("Target == " + target);
 
         if (clan.isMember(target)) {
             player.sendMessage(file.getString(CONFIG, "Messages.target-is-member-already").getColored());
@@ -275,5 +277,111 @@ public class CommandHandle {
         }
 
         clan.disband();
+    }
+
+    static void ally(Player player, ClanMember member, Clan clan, String[] args) {
+        if (clan == null || clan.isNull()) {
+            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.not-in-clan").getColored());
+            return;
+        }
+
+        if (args.length < 3) {
+            player.sendMessage(file.getString(CONFIG, "Commands.ally-help").getColored());
+            return;
+        }
+
+        if (!member.getRole().isAtLeast(ClanRole.LEADER)) {
+            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.role-required").getColoredString(new String[] { "%role_name%" }, new String[] { ClanRole.LEADER.getFullName() }));
+            return;
+        }
+
+        String argument = args[1].toUpperCase();
+        Clan targetClan = ClanManager.getManager().getClan(args[2]);
+
+        if (targetClan == null || targetClan.isNull()) {
+            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.clan-not-found").getColored());
+            return;
+        }
+
+        String tag = targetClan.getUncoloredTag();
+
+        switch (argument) {
+            case "ADICIONAR":
+            case "ADD":
+                if (clan.isRival(tag)) {
+                    player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.clan-is-rival").getColored());
+                    return;
+                }
+
+                if (clan.isAlly(tag)) {
+                    player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.clan-is-ally-already").getColored());
+                    return;
+                }
+
+                clan.addAliases(targetClan);
+                break;
+            case "REMOVER":
+            case "DEL":
+                if (!clan.isAlly(tag)) {
+                    player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.clan-is-not-ally").getColored());
+                    return;
+                }
+
+                clan.removeAliases(targetClan);
+                break;
+        }
+    }
+
+    static void rival(Player player, ClanMember member, Clan clan, String[] args) {
+        if (clan == null || clan.isNull()) {
+            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.not-in-clan").getColored());
+            return;
+        }
+
+        if (args.length < 3) {
+            player.sendMessage(file.getString(CONFIG, "Commands.rival-help").getColored());
+            return;
+        }
+
+        if (!member.getRole().isAtLeast(ClanRole.LEADER)) {
+            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.role-required").getColoredString(new String[] { "%role_name%" }, new String[] { ClanRole.LEADER.getFullName() }));
+            return;
+        }
+
+        String argument = args[1].toUpperCase();
+        Clan targetClan = ClanManager.getManager().getClan(args[2]);
+
+        if (targetClan == null || targetClan.isNull()) {
+            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.clan-not-found").getColored());
+            return;
+        }
+
+        String tag = targetClan.getUncoloredTag();
+
+        switch (argument) {
+            case "ADICIONAR":
+            case "ADD":
+                if (clan.isAlly(tag)) {
+                    player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.clan-is-ally").getColored());
+                    return;
+                }
+
+                if (clan.isRival(tag)) {
+                    player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.clan-is-rival-already").getColored());
+                    return;
+                }
+
+                clan.addRivals(targetClan);
+                break;
+            case "REMOVER":
+            case "DEL":
+                if (!clan.isRival(tag)) {
+                    player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.clan-is-not-rival").getColored());
+                    return;
+                }
+
+                clan.removeRivals(targetClan);
+                break;
+        }
     }
 }

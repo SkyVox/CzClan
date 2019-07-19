@@ -141,6 +141,13 @@ Messages:
   # Comando de excluir.
   clan-disbanded-broadcast: # Para todos os membros do Clan.
     - '&cEste Clan foi excluido!'
+  # Comando de aliado e rival.
+  clan-is-ally-already: "&aEste clan já é um aliado!"
+  clan-is-not-ally: "&cEste clan não faz parte da sua lista de aliados."
+  clan-is-rival: "&cEste clan é rival, você precisa remove-lo antes."
+  clan-is-rival-already: "&aEste clan já é rival!"
+  clan-is-not-rival: "&cEste clan não faz parte da sua lista de rivalidades."
+  clan-is-ally: "&cEste clan é aliado, você precisa remove-lo antes."
 
 Broadcast:
   new-clan-created: # Para remover esta mensagem, apenas apague as linhas abaixo e adicione "{}" na frente de "new-clan-created:";
@@ -162,6 +169,8 @@ Commands:
   invite-member-help: "&cUse: &e/clan convidar/invite &b: Convidar um jogador para o clan."
   accept-member-help: "&cUse: &e/clan aceitar/accept <tag> &b: Aceitar um convite de clan."
   kick-member-help: "&cUse: &e/clan expulsar/kick <jogador> &b: Expulsar um jogador do clan."
+  ally-help: "&cUse: &e/clan aliado/ally (add/adicionar&7-&eremover/del) <tag> &b: Adicionar/Remover um aliado."
+  rival-help: "&cUse: &e/clan rival (add/adicionar&7-&eremover/del) <tag> &b: Adicionar/Remover um rival."
 
   # Comando de aliados.
   no-allies-found: "&cNão foi possível encontrar aliados. (Seu Clan não possui aliados)."
@@ -187,7 +196,7 @@ Commands:
     - '&e/clan clan/stats <tag> &b: Ver informações do clan.'
     - '&e/clan rivalidades/rivals &b: Ver lista de rivalidades.'
     - '&e/clan aliancas/alianças/allies &b: Ver lista de aliados.'
-    - '&e/clan membros/members &b: Ver membros do clan.'
+    - '&e/clan membros/members <tag> &b: Ver membros do clan.'
     - '&e/clan promover/promote <jogador> &b: Promover um jogador.'
     - '&e/clan rebaixar/demote <jogador> &b: Rebaixar o cargo de um jogador.'
     - '&e/clan lista/list &b: Ver a lista de clans criados.'
@@ -195,8 +204,8 @@ Commands:
     - '&e/clan aceitar/accept <tag> &b: Aceitar um convite de clan.'
     - '&e/clan expulsar/kick <jogador> &b: Expulsar um jogador do clan.'
     - '&e/clan desfazer/excluir/disband &b: Deleter o clan.'
-    - '&e/clan aliado/ally (add/adicionar&7-&eremover/del) &b: Adicionar/Remover um aliado.'
-    - '&e/clan rival (add/adicionar&7-&eremover/del) &b: Adicionar/Remover um rival.'
+    - '&e/clan aliado/ally (adicionar/add&7-&eremover/del) <tag> &b: Adicionar/Remover um aliado.'
+    - '&e/clan rival (adicionar/add&7-&eremover/del) <tag> &b: Adicionar/Remover um rival.'
     - '&e/clan pvp &b: Ativar/Desativar pvp entre os membros do clan.'
     - ''
     - '&6-------------------------'

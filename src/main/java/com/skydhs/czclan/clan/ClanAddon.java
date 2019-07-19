@@ -7,6 +7,16 @@ import org.bukkit.entity.Player;
 public interface ClanAddon {
 
     /**
+     * Called when players executes
+     * the main clan command, '/clan'.
+     *
+     * @param player player that execute
+     *               the command.
+     * @param member the @player clanMember.
+     */
+    void commandMain(Player player, ClanMember member);
+
+    /**
      * Called when a player executes
      * /clan top;
      *

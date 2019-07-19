@@ -205,7 +205,7 @@ public class Clan implements ClanAddon {
 
     public String getUncoloredTag() {
         if (!hasTag()) return null;
-        return ChatColor.stripColor(getColoredTag());
+        return ClanManager.getManager().stripColor(tag);
     }
 
     public Boolean hasTag() {
@@ -476,21 +476,36 @@ public class Clan implements ClanAddon {
         return clanAllies != null && clanAllies.size() > 0;
     }
 
-    public boolean addAliases(Clan clan) {
-        String tag = clan.getUncoloredTag();
-        if (tag == null || this.clanAllies.size() >= ClanSettings.CLAN_RELATIONS_SIZE) return false;
+    public Boolean isAlly(String tag) {
+        if (!hasAllies() || tag == null) return false;
 
-        this.clanRivals.remove(tag);
-        this.clanAllies.add(tag);
-        this.update();
-        return true;
+        String formattedTag = ClanManager.getManager().stripColor(tag);
+
+        for (String str : clanAllies) {
+            if (StringUtils.equalsIgnoreCase(formattedTag, str)) return true;
+        }
+
+        return false;
     }
 
-    public boolean removeAliases(Clan clan) {
+    public void addAliases(Clan clan) {
         String tag = clan.getUncoloredTag();
-        if (tag == null) return false;
+        if (tag == null || this.clanAllies.size() >= ClanSettings.CLAN_RELATIONS_SIZE) return;
+
+        this.clanAllies.add(tag);
         this.update();
-        return clanAllies.remove(tag);
+        clan.getClanAllies().add(getUncoloredTag());
+        clan.update();
+    }
+
+    public void removeAliases(Clan clan) {
+        String tag = clan.getUncoloredTag();
+        if (tag == null) return;
+
+        this.clanAllies.remove(tag);
+        this.update();
+        clan.getClanAllies().remove(getUncoloredTag());
+        clan.update();
     }
 
     public List<String> getClanRivals() {
@@ -512,21 +527,36 @@ public class Clan implements ClanAddon {
         return clanRivals != null && clanRivals.size() >= 1;
     }
 
-    public boolean addRivals(Clan clan) {
-        String tag = clan.getUncoloredTag();
-        if (tag == null || this.clanRivals.size() >= ClanSettings.CLAN_RELATIONS_SIZE) return false;
+    public Boolean isRival(String tag) {
+        if (!hasRivals() || tag == null) return false;
 
-        this.clanAllies.remove(tag);
-        this.clanRivals.add(tag);
-        this.update();
-        return true;
+        String formattedTag = ClanManager.getManager().stripColor(tag);
+
+        for (String str : clanRivals) {
+            if (StringUtils.equalsIgnoreCase(formattedTag, str)) return true;
+        }
+
+        return false;
     }
 
-    public boolean removeRivals(Clan clan) {
+    public void addRivals(Clan clan) {
         String tag = clan.getUncoloredTag();
-        if (tag == null) return false;
+        if (tag == null || this.clanRivals.size() >= ClanSettings.CLAN_RELATIONS_SIZE) return;
+
+        this.clanRivals.add(tag);
         this.update();
-        return clanRivals.remove(tag);
+        clan.getClanRivals().add(getUncoloredTag());
+        clan.update();
+    }
+
+    public void removeRivals(Clan clan) {
+        String tag = clan.getUncoloredTag();
+        if (tag == null) return;
+
+        this.clanRivals.remove(tag);
+        this.update();
+        clan.getClanRivals().remove(getUncoloredTag());
+        clan.update();
     }
 
     /**

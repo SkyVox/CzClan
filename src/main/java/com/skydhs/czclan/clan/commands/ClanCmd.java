@@ -33,12 +33,8 @@ public class ClanCmd implements CommandExecutor {
         Clan clan = null;
 
         if (args.length <= 0) {
-            // TODO opens the main menu.;
-
-            if (member == null || !member.hasClan()) {
-            } else {
-            }
-
+            // Opens/Execute the main menu/command.
+            CommandHandle.main(core, player, member);
             return true;
         }
 
@@ -241,9 +237,23 @@ public class ClanCmd implements CommandExecutor {
             case "ALIADO":
             case "ALLY":
                 executed = true;
+
+                if (member != null && member.hasClan()) {
+                    clan = member.getClan();
+                }
+
+                // Execute ally command.
+                CommandHandle.ally(player, member, clan, args);
                 break;
             case "RIVAL":
                 executed = true;
+
+                if (member != null && member.hasClan()) {
+                    clan = member.getClan();
+                }
+
+                // Execute rival command.
+                CommandHandle.rival(player, member, clan, args);
                 break;
             case "PVP":
                 executed = true;
