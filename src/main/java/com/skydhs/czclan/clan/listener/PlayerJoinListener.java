@@ -23,8 +23,8 @@ public class PlayerJoinListener implements Listener {
         new BukkitRunnable() {
             @Override
             public void run() {
-                ClanManager.getManager().loadPlayer(player);
+                ClanManager.getManager().loadClanMember(player);
             }
-        }.runTaskLaterAsynchronously(core, 0L);
+        }.runTaskAsynchronously(core);
     }
 }

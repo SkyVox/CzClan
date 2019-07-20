@@ -91,6 +91,10 @@ Roles:
     name: "MEMBRO"
     color: "&7"
 
+  unranked:
+    name: "SEM CLAN"
+    color: "&8"
+
 # Mensagens.
 Messages:
   cannot-execute-yourself: "&cVocê não pode realizar isso para sí mesmo."

@@ -133,6 +133,10 @@ public class ClanMember implements Comparable<ClanMember> {
         return role;
     }
 
+    public Boolean isLeader() {
+        return role.isAtLeast(ClanRole.LEADER);
+    }
+
     public void setRole(ClanRole role) {
         this.role = role;
     }
@@ -181,9 +185,8 @@ public class ClanMember implements Comparable<ClanMember> {
      *
      * @param oldClan Old clan.
      * @param clan The new Clan.
-     * @param stats Player stats.
      */
-    public void changeClan(Clan oldClan, Clan clan, GeneralStats stats) {
+    public void changeClan(Clan oldClan, Clan clan) {
         if (oldClan != null && clan != null) {
             if (oldClan.equals(clan)) return;
         }
@@ -195,7 +198,6 @@ public class ClanMember implements Comparable<ClanMember> {
         this.tag = (clan == null ? null : clan.getUncoloredTag());
         this.clan = clan;
         this.joined = ZonedDateTime.now();
-        this.stats = stats;
 
         // TODO, Call the @UpdateMember event.
     }

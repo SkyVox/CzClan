@@ -28,7 +28,7 @@ public class ClanCmd implements CommandExecutor {
         }
 
         Player player = (Player) sender;
-        ClanMember member = ClanManager.getManager().getMember(player.getName());
+        ClanMember member = ClanManager.getManager().getClanMember(player.getName());
         ClanMember target = null;
         Clan clan = null;
 
@@ -76,7 +76,7 @@ public class ClanCmd implements CommandExecutor {
                         return true;
                     }
 
-                    target = ClanManager.getManager().getMember(targetName);
+                    target = ClanManager.getManager().getClanMember(targetName);
 
                     // Execute player command.
                     CommandHandle.player(core, player, target);

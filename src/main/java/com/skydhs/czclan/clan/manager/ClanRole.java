@@ -4,9 +4,10 @@ import com.skydhs.czclan.clan.FileUtils;
 import org.bukkit.ChatColor;
 
 public enum ClanRole {
-    MEMBER(0, FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.member.name").get(), FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.member.color").get()),
-    OFFICER(1, FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.officer.name").get(), FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.officer.color").get()),
-    LEADER(2, FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.owner.name").get(), FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.owner.color").get());
+    UNRANKED(0, FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.unranked.name").get(), FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.unranked.color").get()),
+    MEMBER(1, FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.member.name").get(), FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.member.color").get()),
+    OFFICER(2, FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.officer.name").get(), FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.officer.color").get()),
+    LEADER(3, FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.owner.name").get(), FileUtils.get().getString(FileUtils.Files.CONFIG, "Roles.owner.color").get());
 
     private int id;
     private String translated;

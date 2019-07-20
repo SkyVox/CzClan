@@ -104,7 +104,11 @@ public class Clan implements ClanAddon {
         this.clanRivals = new ArrayList<>(ClanSettings.CLAN_RELATIONS_SIZE);
 
         ClanMember leader = member;
-        if (leader == null) leader = new ClanMember(player.getUniqueId(), player.getName(), this, ClanRole.LEADER, ZonedDateTime.now(), new GeneralStats());
+        if (leader == null) {
+            leader = new ClanMember(player.getUniqueId(), player.getName(), this, ClanRole.LEADER, ZonedDateTime.now(), new GeneralStats());
+        } else {
+            leader.setRole(ClanRole.LEADER);
+        }
 
         leader.setPlayer(player);
         leader.cache();
@@ -200,12 +204,11 @@ public class Clan implements ClanAddon {
 
     public String getColoredTag() {
         if (!hasTag()) return null;
-        return ChatColor.translateAlternateColorCodes('&', tag);
+        return tag;
     }
 
     public String getUncoloredTag() {
-        if (!hasTag()) return null;
-        return ClanManager.getManager().stripColor(tag);
+        return ChatColor.stripColor(tag);
     }
 
     public Boolean hasTag() {
@@ -373,14 +376,6 @@ public class Clan implements ClanAddon {
 
     public boolean addMember(ClanMember member) {
         if (this.members.size() >= ClanSettings.CLAN_MAX_MEMBERS) return false;
-        this.members.add(member);
-        this.update();
-        return true;
-    }
-
-    public boolean addMember(UUID uuid, String name, ClanRole role, ZonedDateTime joined) {
-        if (this.members.size() >= ClanSettings.CLAN_MAX_MEMBERS) return false;
-        ClanMember member = new ClanMember(uuid, name, this, role, joined, new GeneralStats());
         this.members.add(member);
         this.update();
         return true;
@@ -630,7 +625,7 @@ public class Clan implements ClanAddon {
                 members.sendMessage(str);
             }
 
-            members.changeClan(this, null, new GeneralStats());
+            members.changeClan(this, null);
         }
 
         for (String str : FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Broadcast.clan-disbanded").getList(null, this)) {

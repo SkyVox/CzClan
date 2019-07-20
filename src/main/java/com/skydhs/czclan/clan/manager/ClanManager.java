@@ -44,7 +44,7 @@ public class ClanManager {
             @Override
             public void run() {
                 for (Player players : Bukkit.getOnlinePlayers()) {
-                    ClanManager.getManager().loadPlayer(players);
+                    ClanManager.getManager().loadClanMember(players);
                 }
             }
         }.runTaskAsynchronously(core);
@@ -106,13 +106,6 @@ public class ClanManager {
             final boolean pendingInvites = member.hasPendingInvites();
 
             if (member.hasClan()) {
-                /*
-                 * Update this player,
-                 * send all them stats to
-                 * database.
-                 */
-                DBManager.getDBManager().getDBConnection().updateMember(member);
-
                 if (!member.isOnline()) {
                     member.unload();
                 }
@@ -126,6 +119,13 @@ public class ClanManager {
                     getLoadedMembers().remove(name);
                 }
             }
+
+            /*
+             * Update this player,
+             * send all them stats to
+             * database.
+             */
+            DBManager.getDBManager().getDBConnection().updateMember(member);
 
             /*
              * Verify if this player has some
@@ -279,7 +279,7 @@ public class ClanManager {
         return ret;
     }
 
-    public ClanMember loadPlayer(Player player) {
+    public ClanMember loadClanMember(Player player) {
         for (Clan clans : getLoadedClans().values()) {
             for (ClanMember member : clans.getMembers()) {
                 if (StringUtils.equals(player.getUniqueId().toString(), member.getUniqueId().toString())) {
@@ -290,12 +290,8 @@ public class ClanManager {
             }
         }
 
-        ClanMember ret = DBManager.getDBManager().getDBConnection().getClanMember(player.getName(), AccessType.NAME);
-        if (ret == null) {
-            ret = new ClanMember(player, null, ClanRole.MEMBER, ZonedDateTime.now(), new GeneralStats());
-            ret.cache();
-            return ret;
-        }
+        ClanMember ret = DBManager.getDBManager().getDBConnection().getClanMember(player.getUniqueId());
+        if (ret == null) ret = new ClanMember(player, null, ClanRole.UNRANKED, ZonedDateTime.now(), new GeneralStats());
 
         ret.setPlayer(player);
         ret.cache();
@@ -307,9 +303,10 @@ public class ClanManager {
         if (member == null) return;
 
         member.setPlayer(null);
+        member.unload();
     }
 
-    public ClanMember getMember(final String name) {
+    public ClanMember getClanMember(final String name) {
         if (getLoadedMembers().containsKey(name)) return getLoadedMembers().get(name);
 
         for (Clan clans : getLoadedClans().values()) {

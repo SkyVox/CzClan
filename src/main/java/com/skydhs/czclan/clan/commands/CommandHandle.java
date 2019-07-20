@@ -7,7 +7,6 @@ import com.skydhs.czclan.clan.manager.ClanRole;
 import com.skydhs.czclan.clan.manager.ClanSettings;
 import com.skydhs.czclan.clan.manager.objects.Clan;
 import com.skydhs.czclan.clan.manager.objects.ClanMember;
-import com.skydhs.czclan.clan.manager.objects.GeneralStats;
 import org.bukkit.entity.Player;
 
 public class CommandHandle {
@@ -187,7 +186,7 @@ public class CommandHandle {
             return;
         }
 
-        ClanMember targetMember = ClanManager.getManager().getMember(target);
+        ClanMember targetMember = ClanManager.getManager().getClanMember(target);
         targetMember.invitePlayer(clan);
 
         player.sendMessage(file.getString(CONFIG, "Messages.invite-player-sender").getString(player, clan));
@@ -219,7 +218,7 @@ public class CommandHandle {
             return;
         }
 
-        member.changeClan(null, clan, new GeneralStats());
+        member.changeClan(null, clan);
         clan.addMember(member);
 
         player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.join-clan-target").getString(player, clan));
@@ -259,7 +258,7 @@ public class CommandHandle {
         }
 
         clan.removeMember(targetMember);
-        targetMember.changeClan(clan, null, new GeneralStats());
+        targetMember.changeClan(clan, null);
 
         player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.player-kicked-sender").getString(player, clan, new String[] { "%target_name%" }, new String[] { target }));
         targetMember.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.player-kicked-target").getString(null, clan, new String[] { "%player_name%" }, new String[] { player.getName() }));
