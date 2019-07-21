@@ -145,6 +145,10 @@ Messages:
   # Comando de excluir.
   clan-disbanded-broadcast: # Para todos os membros do Clan.
     - '&cEste Clan foi excluido!'
+  # Comando de sair.
+  left-clan-sender: "&cVocê saiu do Clan."
+  left-clan-broadcast:
+    - '&cO jogador %target_name% saiu do Clan.'
   # Comando de aliado e rival.
   clan-is-ally-already: "&aEste clan já é um aliado!"
   clan-is-not-ally: "&cEste clan não faz parte da sua lista de aliados."
@@ -208,6 +212,7 @@ Commands:
     - '&e/clan aceitar/accept <tag> &b: Aceitar um convite de clan.'
     - '&e/clan expulsar/kick <jogador> &b: Expulsar um jogador do clan.'
     - '&e/clan desfazer/excluir/disband &b: Deleter o clan.'
+    - '&e/clan sair/leave &b: Sair do Clan.'
     - '&e/clan aliado/ally (adicionar/add&7-&eremover/del) <tag> &b: Adicionar/Remover um aliado.'
     - '&e/clan rival (adicionar/add&7-&eremover/del) <tag> &b: Adicionar/Remover um rival.'
     - '&e/clan pvp &b: Ativar/Desativar pvp entre os membros do clan.'

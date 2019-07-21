@@ -64,7 +64,7 @@ public class ClanManager {
             public void run() {
                 update();
             }
-        }.runTaskTimerAsynchronously(core, 20, time);
+        }.runTaskTimerAsynchronously(core, 20*60, time);
     }
 
     /**

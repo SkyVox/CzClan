@@ -4,6 +4,7 @@ import com.skydhs.czclan.addon.Addon;
 import com.skydhs.czclan.clan.commands.ClanAdminCmd;
 import com.skydhs.czclan.clan.commands.ClanCmd;
 import com.skydhs.czclan.clan.database.DBManager;
+import com.skydhs.czclan.clan.integration.ClanPlaceholderExpansion;
 import com.skydhs.czclan.clan.listener.ClanGeneralListeners;
 import com.skydhs.czclan.clan.listener.PlayerDeathListener;
 import com.skydhs.czclan.clan.listener.PlayerJoinListener;
@@ -57,6 +58,10 @@ public class Core extends JavaPlugin {
         // For the last, we should call the Addon class.
         this.addon = new Addon(this);
 
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            new ClanPlaceholderExpansion(this).register();
+        }
+
         //* Setup the shop commands. *//
         sendMessage("Loading commands and listeners...");
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
@@ -82,6 +87,8 @@ public class Core extends JavaPlugin {
             ClanManager.getManager().getDeletedClans().clear();
             ClanManager.getManager().getLoadedClans().clear();
         }
+
+        addon.switchOff();
 
         this.numberFormat = null;
         this.addon = null;

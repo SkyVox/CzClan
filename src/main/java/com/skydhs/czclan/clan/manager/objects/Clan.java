@@ -108,6 +108,7 @@ public class Clan implements ClanAddon {
             leader = new ClanMember(player.getUniqueId(), player.getName(), this, ClanRole.LEADER, ZonedDateTime.now(), new GeneralStats());
         } else {
             leader.setRole(ClanRole.LEADER);
+            leader.changeClan(null, this);
         }
 
         leader.setPlayer(player);
@@ -384,10 +385,6 @@ public class Clan implements ClanAddon {
     public void removeMember(ClanMember member) {
         this.members.remove(member);
         this.update();
-
-        for (String str : FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Messages.promote-player-broadcast").getList(null, this, new String[] { "%target_name%" }, new String[] { member.getName() })) {
-            sendMessage(str);
-        }
     }
 
     public void removeMember(UUID uuid) {
@@ -395,11 +392,6 @@ public class Clan implements ClanAddon {
             if (StringUtils.equals(uuid.toString(), members.getUniqueId().toString())) {
                 this.members.remove(members);
                 this.update();
-
-                for (String str : FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Messages.promote-player-broadcast").getList(null, this, new String[] { "%target_name%" }, new String[] { members.getName() })) {
-                    sendMessage(str);
-                }
-
                 break;
             }
         }
@@ -429,6 +421,10 @@ public class Clan implements ClanAddon {
 
         ClanRole role = target.getRole().getNext();
         target.setRole(role);
+
+        if (role == ClanRole.LEADER) {
+            this.leaderName = target.getName();
+        }
 
         for (String str : FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Messages.promote-player-broadcast").getList(null, this, new String[] { "%target_name%", "%role_name%" }, new String[] { target.getName(), role.getFullName() })) {
             sendMessage(str);

@@ -234,6 +234,17 @@ public class ClanCmd implements CommandExecutor {
                 // Execute disband command.
                 CommandHandle.disband(player, member, clan);
                 break;
+            case "SAIR":
+            case "LEAVE":
+                executed = true;
+
+                if (member != null && member.hasClan()) {
+                    clan = member.getClan();
+                }
+
+                // Execute leave command.
+                CommandHandle.leave(player, member, clan);
+                break;
             case "ALIADO":
             case "ALLY":
                 executed = true;
@@ -263,8 +274,8 @@ public class ClanCmd implements CommandExecutor {
                     return true;
                 }
 
-                if (!member.getRole().isAtLeast(ClanRole.OFFICER)) {
-                    player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.role-required").getColoredString(new String[] { "%role_name%" }, new String[] { ClanRole.OFFICER.getFullName() }));
+                if (!member.getRole().isAtLeast(ClanRole.LEADER)) {
+                    player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.role-required").getColoredString(new String[] { "%role_name%" }, new String[] { ClanRole.LEADER.getFullName() }));
                     return true;
                 }
 

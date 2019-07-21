@@ -3,6 +3,8 @@ version: ${project.version}
 description: ${project.description}
 author: SkyVox_
 website: skydhs.com
+softdepend:
+  - PlaceholderAPI
 
 # The Main class.
 main: com.skydhs.czclan.clan.Core

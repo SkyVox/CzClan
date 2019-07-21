@@ -260,6 +260,10 @@ public class CommandHandle {
         clan.removeMember(targetMember);
         targetMember.changeClan(clan, null);
 
+        for (String str : FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Messages.player-kicked-broadcast").getList(null, clan, new String[] { "%target_name%" }, new String[] { member.getName() })) {
+            clan.sendMessage(str);
+        }
+
         player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.player-kicked-sender").getString(player, clan, new String[] { "%target_name%" }, new String[] { target }));
         targetMember.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.player-kicked-target").getString(null, clan, new String[] { "%player_name%" }, new String[] { player.getName() }));
     }
@@ -276,6 +280,22 @@ public class CommandHandle {
         }
 
         clan.disband();
+    }
+
+    static void leave(Player player, ClanMember member, Clan clan) {
+        if (clan == null || clan.isNull()) {
+            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.not-in-clan").getColored());
+            return;
+        }
+
+        clan.removeMember(member);
+        member.changeClan(clan, null);
+
+        for (String str : FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Messages.left-clan-broadcast").getList(null, clan, new String[] { "%target_name%" }, new String[] { player.getName() })) {
+            clan.sendMessage(str);
+        }
+
+        player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.left-clan-sender").getColoredString(new String[] { "%player_name%" }, new String[] { player.getName() }));
     }
 
     static void ally(Player player, ClanMember member, Clan clan, String[] args) {

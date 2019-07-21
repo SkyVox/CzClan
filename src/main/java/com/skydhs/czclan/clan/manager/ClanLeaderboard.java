@@ -4,13 +4,18 @@ import com.skydhs.czclan.clan.FileUtils;
 import com.skydhs.czclan.clan.database.DBManager;
 import com.skydhs.czclan.clan.manager.objects.Clan;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 public class ClanLeaderboard {
     private List<Clan> topKills, topDeaths, topKDR;
 
-    public ClanLeaderboard() {}
+    public ClanLeaderboard() {
+        this.topKills = new ArrayList<>(ClanSettings.CLAN_LEADERBOARD_LIMIT);
+        this.topDeaths = new ArrayList<>(ClanSettings.CLAN_LEADERBOARD_LIMIT);
+        this.topKDR = new ArrayList<>(ClanSettings.CLAN_LEADERBOARD_LIMIT);
+    }
 
     public void clearLeaderboard() {
         if (topKills != null) this.topKills.clear();
