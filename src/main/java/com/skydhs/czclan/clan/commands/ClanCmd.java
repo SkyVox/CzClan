@@ -269,23 +269,29 @@ public class ClanCmd implements CommandExecutor {
             case "PVP":
                 executed = true;
 
-                if (member == null || !member.hasClan()) {
+                if (member != null && member.hasClan()) {
+                    clan = member.getClan();
+                }
+
+                if (clan == null) {
                     player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.not-in-clan").getColored());
                     return true;
                 }
 
                 if (!member.getRole().isAtLeast(ClanRole.LEADER)) {
-                    player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.role-required").getColoredString(new String[] { "%role_name%" }, new String[] { ClanRole.LEADER.getFullName() }));
+                    player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.role-required").getColoredString(new String[] { "%skyclan_member_role%" }, new String[] { ClanRole.LEADER.getFullName() }));
                     return true;
                 }
 
-                boolean friendlyFire = !member.getClan().isFriendlyFire();
-                member.getClan().setFriendlyFire(friendlyFire);
+                boolean friendlyFire = !clan.isFriendlyFire();
+                clan.setFriendlyFire(friendlyFire);
 
                 if (friendlyFire) {
                     player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Commands.clan-pvp-enabled").getColored());
+                    clan.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Commands.clan-pvp-enabled").getColored());
                 } else {
                     player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Commands.clan-pvp-disabled").getColored());
+                    clan.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Commands.clan-pvp-disabled").getColored());
                 }
 
                 break;

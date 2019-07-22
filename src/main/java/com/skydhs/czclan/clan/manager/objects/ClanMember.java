@@ -186,7 +186,7 @@ public class ClanMember implements Comparable<ClanMember> {
      * @param oldClan Old clan.
      * @param clan The new Clan.
      */
-    public void changeClan(Clan oldClan, Clan clan) {
+    public void changeClan(Clan oldClan, Clan clan, ClanRole role) {
         if (oldClan != null && clan != null) {
             if (oldClan.equals(clan)) return;
         }
@@ -196,6 +196,7 @@ public class ClanMember implements Comparable<ClanMember> {
         }
 
         this.tag = (clan == null ? null : clan.getUncoloredTag());
+        this.role = role;
         this.clan = clan;
         this.joined = ZonedDateTime.now();
 

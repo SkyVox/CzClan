@@ -189,7 +189,7 @@ public class ClanManager {
     }
 
     public boolean isLocationEquals(Location one, Location two) {
-        if (one == null || two == null) return false;
+        if (one == null || two == null) return true;
         return one.getBlockX() == two.getBlockX() && one.getBlockY() == two.getBlockY() && one.getBlockZ() == two.getBlockZ();
     }
 
@@ -325,7 +325,22 @@ public class ClanManager {
         return ret;
     }
 
-    public boolean isNameInUse(final String name) {
+    public Boolean isSameClan(Player one, Player two) {
+        if (StringUtils.equalsIgnoreCase(one.getName(), two.getName())) return true;
+
+        ClanMember memberOne = getClanMember(one.getName());
+        ClanMember memberTwo = getClanMember(two.getName());
+
+        if (memberOne == null || memberTwo == null) return false;
+
+        if (memberOne.hasClan() && memberTwo.hasClan()) {
+            return memberOne.getClan().equals(memberTwo.getClan());
+        }
+
+        return false;
+    }
+
+    public Boolean isNameInUse(final String name) {
         if (name == null) return false;
 
         String search = ChatColor.stripColor(name);
@@ -337,14 +352,14 @@ public class ClanManager {
         return false;
     }
 
-    public boolean isTagInUse(final String tag) {
+    public Boolean isTagInUse(final String tag) {
         if (tag == null) return false;
 
         String search = ChatColor.stripColor(tag);
         return getLoadedClans().get(search) != null;
     }
 
-    public boolean canUse(final String name, final String tag) {
+    public Boolean canUse(final String name, final String tag) {
         return isNameInUse(name) && isTagInUse(tag);
     }
 

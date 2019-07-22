@@ -5,6 +5,7 @@ import com.skydhs.czclan.clan.commands.ClanAdminCmd;
 import com.skydhs.czclan.clan.commands.ClanCmd;
 import com.skydhs.czclan.clan.database.DBManager;
 import com.skydhs.czclan.clan.integration.ClanPlaceholderExpansion;
+import com.skydhs.czclan.clan.integration.LegendChatListener;
 import com.skydhs.czclan.clan.listener.ClanGeneralListeners;
 import com.skydhs.czclan.clan.listener.PlayerDeathListener;
 import com.skydhs.czclan.clan.listener.PlayerJoinListener;
@@ -60,6 +61,10 @@ public class Core extends JavaPlugin {
 
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new ClanPlaceholderExpansion(this).register();
+        }
+
+        if (Bukkit.getPluginManager().getPlugin("Legendchat") != null) {
+            getServer().getPluginManager().registerEvents(new LegendChatListener(), this);
         }
 
         //* Setup the shop commands. *//

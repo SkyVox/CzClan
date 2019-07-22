@@ -98,13 +98,14 @@ Roles:
 # Mensagens.
 Messages:
   cannot-execute-yourself: "&cVocê não pode realizar isso para sí mesmo."
-  role-required: "&cVocê precisa ser %role_name% &cou superior."
+  role-required: "&cVocê precisa ser %skyclan_member_role% &cou superior."
   not-in-clan: "&cVocê não possui Clan."
   clan-not-found: "&cNão foi possível encontrar este Clan."
   target-not-found: "&cNão foi possível encontrar este jogador."
   player-not-online: "&cEste jogador não está online."
   target-not-on-same-clan: "&cEste jogador não é membro do seu Clan."
   already-has-clan: "&cVocê já possui clan."
+  target-has-higher-role: "&cEste jogador possui um cargo maior!"
   # Criação/Editar clan.
   invalid-name-or-tag: "&cEste nome ou tag não é válido."
   name-already-in-use: "&cEste nome já está em uso."
@@ -116,25 +117,25 @@ Messages:
   # Clan player comando.
   target-clan-not-found: "&cEste jogador não possui clan."
   # Comando de promover/rebaixar.
-  promote-player-sender: "&7Você promoveu o jogador %target_name% para %role_name%!" # Quem promoveu o jogador.
-  promote-player-target: "&6Você foi promovido para %role_name%&6!" # Jogador que foi promovido.
+  promote-player-sender: "&7Você promoveu o jogador %target_name% para %skyclan_member_role%!" # Quem promoveu o jogador.
+  promote-player-target: "&6Você foi promovido para %skyclan_member_role%&6!" # Jogador que foi promovido.
   promote-player-broadcast: # Para todos os membros do Clan.
     - '&8--------------------'
-    - '&7O Jogador &3%target_name% &7foi promovido para %role_name%&7!'
+    - '&7O Jogador &3%target_name% &7foi promovido para %skyclan_member_role%&7!'
     - '&8--------------------'
-  demote-player-sender: "&7Você rebaixou o jogador %target_name% para %role_name%!" # Quem rebaixou o jogador.
-  demote-player-target: "&6Você foi rebaixado para %role_name%&6!" # Jogador que foi rebaixado.
+  demote-player-sender: "&7Você rebaixou o jogador %target_name% para %skyclan_member_role%!" # Quem rebaixou o jogador.
+  demote-player-target: "&6Você foi rebaixado para %skyclan_member_role%&6!" # Jogador que foi rebaixado.
   demote-player-broadcast: # Para todos os membros do Clan.
     - '&8--------------------'
-    - '&7O Jogador &3%target_name% &7foi rebaixado para %role_name%&7!'
+    - '&7O Jogador &3%target_name% &7foi rebaixado para %skyclan_member_role%&7!'
     - '&8--------------------'
   # Comando de convidar.
   target-is-member-already: "&cEste jogador já faz parte do seu Clan."
   invite-player-sender: "&7Você convidou o jogador %target_name% para seu Clan, ele tem &c5min &7para aceitar." # Quem convidou o jogador.
-  invite-player-target: "&8Você foi convidado para juntar-se à %sky_clan_tag%&8. &cVocê tem 5min para aceitar." # Jogador que foi convidado.
+  invite-player-target: "&8Você foi convidado para juntar-se à %skyclan_clan_tag%&8. &cVocê tem 5min para aceitar." # Jogador que foi convidado.
   # Comando de aceitar clan.
   you-were-not-invited: "&cVocê não foi convidado."
-  join-clan-target: "&7Você agora é um novo membro do Clan ''%sky_clan_tag%''" # Jogador que entrou no clan.
+  join-clan-target: "&7Você agora é um novo membro do Clan ''%skyclan_clan_tag%''" # Jogador que entrou no clan.
   join-clan-broadcast: # Para todos os membros do Clan.
     - '&8O Jogador %target_name% juntou-se ao Clan!'
   # Comando de expulsar.
@@ -160,11 +161,11 @@ Messages:
 Broadcast:
   new-clan-created: # Para remover esta mensagem, apenas apague as linhas abaixo e adicione "{}" na frente de "new-clan-created:";
     - '&8--------------------'
-    - '&aNovo clan criado, NOME: ''%sky_clan_name%'', TAG: ''%sky_clan_tag%''.'
+    - '&aNovo clan criado, NOME: ''%skyclan_clan_name%'', TAG: ''%skyclan_clan_tag%''.'
     - '&8--------------------'
   clan-disbanded:
     - '&8--------------------'
-    - '&cClan, ''%sky_clan_tag%'' &cfoi excluido!'
+    - '&cClan, ''%skyclan_clan_tag%'' &cfoi excluido!'
     - '&8--------------------'
 
 # Mensagens dos comandos.
@@ -182,11 +183,11 @@ Commands:
 
   # Comando de aliados.
   no-allies-found: "&cNão foi possível encontrar aliados. (Seu Clan não possui aliados)."
-  allies-list: "&7Lista de aliados: &7[&e%sky_clan_allies%&7]"
+  allies-list: "&7Lista de aliados: &7[&e%skyclan_clan_allies%&7]"
 
   # Comando de rivais.
   no-rivals-found: "&cNão foi possível encontrar rivais. (Seu Clan não possui rivais)."
-  rivals-list: "&7Lista de rivais: &7[&e%sky_clan_rivals%&7]"
+  rivals-list: "&7Lista de rivais: &7[&e%skyclan_clan_rivals%&7]"
 
   # Pvp clan.
   clan-pvp-enabled: "&cPVP entre membros do clan foi habilitado!" # Está mensagem será enviada para todos membros do clan.

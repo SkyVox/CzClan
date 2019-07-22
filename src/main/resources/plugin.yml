@@ -5,6 +5,7 @@ author: SkyVox_
 website: skydhs.com
 softdepend:
   - PlaceholderAPI
+  - Legendchat
 
 # The Main class.
 main: com.skydhs.czclan.clan.Core

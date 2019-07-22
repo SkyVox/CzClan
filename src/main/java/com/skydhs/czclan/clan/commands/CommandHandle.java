@@ -114,7 +114,7 @@ public class CommandHandle {
         }
 
         if (!member.getRole().isAtLeast(ClanRole.LEADER)) {
-            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.role-required").getColoredString(new String[] { "%role_name%" }, new String[] { ClanRole.LEADER.getFullName() }));
+            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.role-required").getColoredString(new String[] { "%skyclan_member_role%" }, new String[] { ClanRole.LEADER.getFullName() }));
             return;
         }
 
@@ -142,7 +142,7 @@ public class CommandHandle {
         }
 
         if (!member.getRole().isAtLeast(ClanRole.LEADER)) {
-            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.role-required").getColoredString(new String[] { "%role_name%" }, new String[] { ClanRole.LEADER.getFullName() }));
+            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.role-required").getColoredString(new String[] { "%skyclan_member_role%" }, new String[] { ClanRole.LEADER.getFullName() }));
             return;
         }
 
@@ -170,7 +170,7 @@ public class CommandHandle {
         }
 
         if (!member.getRole().isAtLeast(ClanRole.OFFICER)) {
-            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.role-required").getColoredString(new String[] { "%role_name%" }, new String[] { ClanRole.OFFICER.getFullName() }));
+            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.role-required").getColoredString(new String[] { "%skyclan_member_role%" }, new String[] { ClanRole.OFFICER.getFullName() }));
             return;
         }
 
@@ -189,7 +189,7 @@ public class CommandHandle {
         ClanMember targetMember = ClanManager.getManager().getClanMember(target);
         targetMember.invitePlayer(clan);
 
-        player.sendMessage(file.getString(CONFIG, "Messages.invite-player-sender").getString(player, clan));
+        player.sendMessage(file.getString(CONFIG, "Messages.invite-player-sender").getString(player, clan, new String[] { "%target_name%" }, new String[] { target }));
     }
 
     static void accept(Player player, ClanMember member, String[] args) {
@@ -218,7 +218,7 @@ public class CommandHandle {
             return;
         }
 
-        member.changeClan(null, clan);
+        member.changeClan(null, clan, ClanRole.MEMBER);
         clan.addMember(member);
 
         player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.join-clan-target").getString(player, clan));
@@ -240,7 +240,7 @@ public class CommandHandle {
         }
 
         if (!member.getRole().isAtLeast(ClanRole.OFFICER)) {
-            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.role-required").getColoredString(new String[] { "%role_name%" }, new String[] { ClanRole.OFFICER.getFullName() }));
+            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.role-required").getColoredString(new String[] { "%skyclan_member_role%" }, new String[] { ClanRole.OFFICER.getFullName() }));
             return;
         }
 
@@ -257,8 +257,13 @@ public class CommandHandle {
             return;
         }
 
+        if (!member.getRole().isMoreThan(targetMember.getRole())) {
+            player.sendMessage(file.getString(CONFIG, "Messages.target-has-higher-role").getColoredString(new String[] { "%target_name%", "%skyclan_member_role%" }, new String[] { target, targetMember.getRole().getFullName() }));
+            return;
+        }
+
         clan.removeMember(targetMember);
-        targetMember.changeClan(clan, null);
+        targetMember.changeClan(clan, null, ClanRole.UNRANKED);
 
         for (String str : FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Messages.player-kicked-broadcast").getList(null, clan, new String[] { "%target_name%" }, new String[] { member.getName() })) {
             clan.sendMessage(str);
@@ -275,7 +280,7 @@ public class CommandHandle {
         }
 
         if (!member.getRole().isAtLeast(ClanRole.LEADER)) {
-            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.role-required").getColoredString(new String[] { "%role_name%" }, new String[] { ClanRole.LEADER.getFullName() }));
+            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.role-required").getColoredString(new String[] { "%skyclan_member_role%" }, new String[] { ClanRole.LEADER.getFullName() }));
             return;
         }
 
@@ -289,7 +294,7 @@ public class CommandHandle {
         }
 
         clan.removeMember(member);
-        member.changeClan(clan, null);
+        member.changeClan(clan, null, ClanRole.UNRANKED);
 
         for (String str : FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Messages.left-clan-broadcast").getList(null, clan, new String[] { "%target_name%" }, new String[] { player.getName() })) {
             clan.sendMessage(str);
@@ -310,7 +315,7 @@ public class CommandHandle {
         }
 
         if (!member.getRole().isAtLeast(ClanRole.LEADER)) {
-            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.role-required").getColoredString(new String[] { "%role_name%" }, new String[] { ClanRole.LEADER.getFullName() }));
+            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.role-required").getColoredString(new String[] { "%skyclan_member_role%" }, new String[] { ClanRole.LEADER.getFullName() }));
             return;
         }
 
@@ -363,7 +368,7 @@ public class CommandHandle {
         }
 
         if (!member.getRole().isAtLeast(ClanRole.LEADER)) {
-            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.role-required").getColoredString(new String[] { "%role_name%" }, new String[] { ClanRole.LEADER.getFullName() }));
+            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.role-required").getColoredString(new String[] { "%skyclan_member_role%" }, new String[] { ClanRole.LEADER.getFullName() }));
             return;
         }
 

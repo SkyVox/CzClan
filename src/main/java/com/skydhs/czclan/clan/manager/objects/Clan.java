@@ -58,6 +58,8 @@ public class Clan implements ClanAddon {
 
     /*
      * TODO, clan date creation and player joined date are being replaced always when player executes the action.
+     * TODO, ClanMember#isOnline sometimes is false even when this player is online.
+     * TODO, Deleted Clans are not being removed from db.
      */
 
     /**
@@ -108,7 +110,7 @@ public class Clan implements ClanAddon {
             leader = new ClanMember(player.getUniqueId(), player.getName(), this, ClanRole.LEADER, ZonedDateTime.now(), new GeneralStats());
         } else {
             leader.setRole(ClanRole.LEADER);
-            leader.changeClan(null, this);
+            leader.changeClan(null, this, ClanRole.LEADER);
         }
 
         leader.setPlayer(player);
@@ -385,6 +387,7 @@ public class Clan implements ClanAddon {
     public void removeMember(ClanMember member) {
         this.members.remove(member);
         this.update();
+        this.checkMembers(member);
     }
 
     public void removeMember(UUID uuid) {
@@ -392,8 +395,21 @@ public class Clan implements ClanAddon {
             if (StringUtils.equals(uuid.toString(), members.getUniqueId().toString())) {
                 this.members.remove(members);
                 this.update();
+                this.checkMembers(members);
                 break;
             }
+        }
+    }
+
+    public void checkMembers(ClanMember member) {
+        if (members.size() <= 0) {
+            disband();
+            return;
+        }
+
+        if (member.getRole().isAtLeast(ClanRole.LEADER)) {
+            disband();
+            return;
         }
     }
 
@@ -426,12 +442,12 @@ public class Clan implements ClanAddon {
             this.leaderName = target.getName();
         }
 
-        for (String str : FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Messages.promote-player-broadcast").getList(null, this, new String[] { "%target_name%", "%role_name%" }, new String[] { target.getName(), role.getFullName() })) {
+        for (String str : FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Messages.promote-player-broadcast").getList(null, this, new String[] { "%target_name%", "%skyclan_member_role%" }, new String[] { target.getName(), role.getFullName() })) {
             sendMessage(str);
         }
 
-        member.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.promote-player-sender").getString(member.getPlayer(), this, new String[] { "%target_name%", "%role_name%" }, new String[] { target.getName(), role.getFullName() }));
-        target.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.promote-player-target").getString(target.getPlayer(), this, new String[] { "%target_name%", "%role_name%" }, new String[] { target.getName(), role.getFullName() }));
+        member.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.promote-player-sender").getString(member.getPlayer(), this, new String[] { "%target_name%", "%skyclan_member_role%" }, new String[] { target.getName(), role.getFullName() }));
+        target.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.promote-player-target").getString(target.getPlayer(), this, new String[] { "%target_name%", "%skyclan_member_role%" }, new String[] { target.getName(), role.getFullName() }));
     }
 
     public void demoteMember(ClanMember member, ClanMember target) {
@@ -440,12 +456,12 @@ public class Clan implements ClanAddon {
         ClanRole role = target.getRole().getPrevious();
         target.setRole(role);
 
-        for (String str : FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Messages.demote-player-broadcast").getList(null, this, new String[] { "%target_name%", "%role_name%" }, new String[] { target.getName(), role.getFullName() })) {
+        for (String str : FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Messages.demote-player-broadcast").getList(null, this, new String[] { "%target_name%", "%skyclan_member_role%" }, new String[] { target.getName(), role.getFullName() })) {
             sendMessage(str);
         }
 
-        member.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.demote-player-sender").getString(member.getPlayer(), this, new String[] { "%target_name%", "%role_name%" }, new String[] { target.getName(), role.getFullName() }));
-        target.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.demote-player-target").getString(target.getPlayer(), this, new String[] { "%target_name%", "%role_name%" }, new String[] { target.getName(), role.getFullName() }));
+        member.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.demote-player-sender").getString(member.getPlayer(), this, new String[] { "%target_name%", "%skyclan_member_role%" }, new String[] { target.getName(), role.getFullName() }));
+        target.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.demote-player-target").getString(target.getPlayer(), this, new String[] { "%target_name%", "%skyclan_member_role%" }, new String[] { target.getName(), role.getFullName() }));
     }
 
     public List<String> getClanAllies() {
@@ -621,7 +637,7 @@ public class Clan implements ClanAddon {
                 members.sendMessage(str);
             }
 
-            members.changeClan(this, null);
+            members.changeClan(this, null, ClanRole.UNRANKED);
         }
 
         for (String str : FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Broadcast.clan-disbanded").getList(null, this)) {
