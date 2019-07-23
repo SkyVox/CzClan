@@ -44,7 +44,7 @@ public class ClanPlaceholderExpansion extends PlaceholderExpansion {
         if (player == null) return null;
 
         ClanMember member = ClanManager.getManager().getClanMember(player.getName());
-        if (member == null) return null;
+        if (member == null) return ClanRole.UNRANKED.getFullName();
 
         switch (identifier.toLowerCase()) {
             case "member_name": // %skyclan_member_name%
@@ -62,11 +62,11 @@ public class ClanPlaceholderExpansion extends PlaceholderExpansion {
                     return DateTimeFormatter.ofPattern(ClanSettings.DATE_FORMAT_PATTERN).format(member.getJoinedDate());
                 } else return null;
             case "member_kills": // %skyclan_member_kills%
-                return String.valueOf(member.getPlayerStats().getKills());
+                return String.valueOf(member.getKills());
             case "member_deaths": // %skyclan_member_deaths%
-                return String.valueOf(member.getPlayerStats().getDeaths());
+                return String.valueOf(member.getDeaths());
             case "member_kdr": // %skyclan_member_kdr%
-                return member.getPlayerStats().getFormattedKDR();
+                return member.getFormattedKDR();
         }
 
         if (!member.hasClan()) return null;

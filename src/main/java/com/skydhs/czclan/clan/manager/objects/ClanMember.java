@@ -1,11 +1,11 @@
 package com.skydhs.czclan.clan.manager.objects;
 
 import com.skydhs.czclan.clan.FileUtils;
+import com.skydhs.czclan.clan.interfaces.GeneralStats;
 import com.skydhs.czclan.clan.manager.ClanManager;
 import com.skydhs.czclan.clan.manager.ClanRole;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
-import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
 import org.bukkit.entity.Player;
 
 import java.time.ZonedDateTime;
@@ -17,7 +17,7 @@ import java.util.UUID;
  * This class below represents
  * the clan members.
  */
-public class ClanMember implements Comparable<ClanMember> {
+public class ClanMember implements Comparable<ClanMember>, GeneralStats {
     private Player player;
     private UUID uuid;
     private String name;
@@ -27,50 +27,52 @@ public class ClanMember implements Comparable<ClanMember> {
     private ZonedDateTime joined;
 
     /*
-     * Player stats.
-     * This value is reseted every
-     * time when he left a clan.
+     * Player stats information.
      */
-    private GeneralStats stats;
+    private int kills;
+    private int deaths;
 
     /*
      * @pendingInvites will store all
      * invitations to this player.
      *
-     * Key = Player Name
+     * Key = Clan Uncolored-Tag
      * Value = Long, this is the time
      *   if this value is >= than 5 minutes
      *   we can delete this invite.
      */
     private Map<String, ZonedDateTime> pendingInvites;
 
-    public ClanMember(Player player, Clan clan, ClanRole role, ZonedDateTime joined, GeneralStats stats) {
+    public ClanMember(Player player, Clan clan, ClanRole role, ZonedDateTime joined, int kills, int deaths) {
         this.uuid = player.getUniqueId();
         this.name = player.getName();
         this.tag = (clan == null ? null : clan.getUncoloredTag());
         this.clan = clan;
         this.role = role;
         this.joined = joined;
-        this.stats = stats;
+        this.kills = kills;
+        this.deaths = deaths;
     }
 
-    public ClanMember(UUID uuid, String name, Clan clan, ClanRole role, ZonedDateTime joined, GeneralStats stats) {
+    public ClanMember(UUID uuid, String name, Clan clan, ClanRole role, ZonedDateTime joined, int kills, int deaths) {
         this.uuid = uuid;
         this.name = name;
         this.tag = (clan == null ? null : clan.getUncoloredTag());
         this.clan = clan;
         this.role = role;
         this.joined = joined;
-        this.stats = stats;
+        this.kills = kills;
+        this.deaths = deaths;
     }
 
-    public ClanMember(UUID uuid, String name, String tag, ClanRole role, ZonedDateTime joined, GeneralStats stats) {
+    public ClanMember(UUID uuid, String name, String tag, ClanRole role, ZonedDateTime joined, int kills, int deaths) {
         this.uuid = uuid;
         this.name = name;
         this.tag = (tag == null ? null : ChatColor.translateAlternateColorCodes('&', tag));
         this.role = role;
         this.joined = joined;
-        this.stats = stats;
+        this.kills = kills;
+        this.deaths = deaths;
     }
 
     /**
@@ -145,8 +147,58 @@ public class ClanMember implements Comparable<ClanMember> {
         return joined;
     }
 
-    public GeneralStats getPlayerStats() {
-        return stats;
+    @Override
+    public double getCoins() {
+        return 0D;
+    }
+
+    @Override
+    public void setCoins(double value) {}
+
+    @Override
+    public int getKills() {
+        return kills;
+    }
+
+    @Override
+    public void setKills(int value) {
+        this.kills = value;
+
+        if (hasClan()) {
+            this.clan.setKills(clan.getKills() + this.kills);
+        }
+    }
+
+    @Override
+    public int getDeaths() {
+        return deaths;
+    }
+
+    @Override
+    public void setDeaths(int value) {
+        this.deaths = value;
+
+        if (hasClan()) {
+            this.clan.setDeaths(clan.getDeaths() + this.deaths);
+        }
+    }
+
+    @Override
+    public float getKDR() {
+        if (deaths == 0) return 1;
+        return ((float) kills / (float) deaths);
+    }
+
+    @Override
+    public String getFormattedKDR() {
+        return String.format("%.2f", getKDR());
+    }
+
+    @Override
+    public void resetStats() {
+        setCoins(0);
+        setKills(0);
+        setDeaths(0);
     }
 
     public Map<String, ZonedDateTime> getPendingInvites() {
@@ -200,6 +252,16 @@ public class ClanMember implements Comparable<ClanMember> {
         this.clan = clan;
         this.joined = ZonedDateTime.now();
 
+        if (oldClan != null) {
+            oldClan.setKills(oldClan.getKills() - kills);
+            oldClan.setDeaths(oldClan.getDeaths() - deaths);
+        }
+
+        if (clan != null) {
+            clan.setKills(clan.getKills() + kills);
+            clan.setDeaths(clan.getDeaths() + deaths);
+        }
+
         // TODO, Call the @UpdateMember event.
     }
 
@@ -219,9 +281,8 @@ public class ClanMember implements Comparable<ClanMember> {
         boolean name = StringUtils.equals(this.name, clanMember.getName());
         boolean role = (this.role.equals(clanMember.getRole()));
         boolean joined = (this.getJoinedDate().toInstant().compareTo(clanMember.getJoinedDate().toInstant()) == 0);
-        boolean stats = this.stats.equals(clanMember.getPlayerStats());
 
-        return uuid && name && role && joined && stats;
+        return uuid && name && role && joined;
     }
 
     @Override
@@ -230,19 +291,19 @@ public class ClanMember implements Comparable<ClanMember> {
                 "uuid='" + uuid + '\'' +
                 ", name='" + name + '\'' +
                 ", tag='" + tag + '\'' +
-//                ", clan='" + clan + '\'' + // Removed.
                 ", role='" + role + '\'' +
                 ", joined='" + joined + '\'' +
-                ", stats='" + stats + '\'' +
                 '}';
     }
 
     @Override
-    public int compareTo(@Nullable ClanMember value) throws NullPointerException {
+    public int compareTo(ClanMember value) throws NullPointerException {
         if (value == null) return 0;
 
-        int x = this.getPlayerStats().getKills();
-        int y = value.getPlayerStats().getKills();
+        int x = 0;
+        int y = 0;
+//        int x = this.getPlayerStats().getKills();
+//        int y = value.getPlayerStats().getKills();
 
         return (x < y) ? -1 : ((x == y) ? 0 : 1);
     }

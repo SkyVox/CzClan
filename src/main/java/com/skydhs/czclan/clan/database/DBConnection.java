@@ -6,7 +6,6 @@ import com.skydhs.czclan.clan.manager.ClanRole;
 import com.skydhs.czclan.clan.manager.ClanSettings;
 import com.skydhs.czclan.clan.manager.objects.Clan;
 import com.skydhs.czclan.clan.manager.objects.ClanMember;
-import com.skydhs.czclan.clan.manager.objects.GeneralStats;
 import org.apache.commons.lang.Validate;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -73,18 +72,22 @@ public class DBConnection {
 
         Validate.notNull(clan, "Clan cannot be null.");
 
-        final String query = "INSERT INTO `" + DBManager.CLAN_TABLE + "` (`uuid`, `name`, `tag`, `description`, `creation_date`, `base`, `friendly_fire`, `coins`, `kills`, `deaths`, `kdr`, `clan_members`, `allies`, `rivals`, `leader_name`, `leader_uuid`) VALUES " +
+        final String query = "INSERT INTO `" + DBManager.CLAN_TABLE + "` (`uuid`, `name`, `tag`, `description`, `creation_date`, `base`, `friendly_fire`, `coins`, `kills`, `deaths`, `kdr`, `gladiator_wins`, `gladiator_losses`, `minigladiator_wins`, `minigladiator_losses`, `clan_members`, `allies`, `rivals`, `leader_name`, `leader_uuid`) VALUES " +
                 "('" + clan.getClanUniqueId().toString() + "', " +
                 "'" + clan.getName() + "', " +
                 "'" + clan.getTag() + "', " +
                 "'" + clan.getDescription() + "', " +
                 "'" + clan.getCreatedDate().toInstant() + "', " +
                 "'" + ClanManager.getManager().serializeLocation(clan.getBase()) + "', " +
-                "'" + (clan.isFriendlyFire() ? 0 : 1) + "', " +
+                "'" + (clan.isFriendlyFire() ? 1 : 0) + "', " +
                 "'" + clan.getCoins() + "', " +
                 "'" + clan.getKills() + "', " +
                 "'" + clan.getDeaths() + "', " +
                 "'" + clan.getKDR() + "', " +
+                "'" + clan.getGladiatorWins() + "', " +
+                "'" + clan.getGladiatorLosses() + "', " +
+                "'" + clan.getMiniGladiatorWins() + "', " +
+                "'" + clan.getMiniGladiatorLosses() + "', " +
                 "'" + ClanManager.getManager().getClanMembers(clan.getMembers()).toString() + "', " +
                 "'" + ClanManager.getManager().getClanRelations(clan.getClanAllies()) + "', " +
                 "'" + ClanManager.getManager().getClanRelations(clan.getClanRivals()) + "', " +
@@ -114,11 +117,15 @@ public class DBConnection {
                 "`description`='" + clan.getDescription() + "', " +
                 "`creation_date`='" + clan.getCreatedDate().toInstant() + "', " +
                 "`base`='" + ClanManager.getManager().serializeLocation(clan.getBase()) + "', " +
-                "`friendly_fire`='" + (clan.isFriendlyFire() ? 0 : 1) + "', " +
+                "`friendly_fire`='" + (clan.isFriendlyFire() ? 1 : 0) + "', " +
                 "`coins`='" + clan.getCoins() + "', " +
                 "`kills`='" + clan.getKills() + "', " +
                 "`deaths`='" + clan.getDeaths() + "', " +
                 "`kdr`='" + clan.getKDR() + "', " +
+                "`gladiator_wins`'" + clan.getGladiatorWins() + "', " +
+                "`gladiator_losses`'" + clan.getGladiatorLosses() + "', " +
+                "`minigladiator_wins`'" + clan.getMiniGladiatorWins() + "', " +
+                "`minigladiator_losses`'" + clan.getMiniGladiatorLosses() + "', " +
                 "`clan_members`='" + ClanManager.getManager().getClanMembers(clan.getMembers()).toString() + "', " +
                 "`allies`='" + ClanManager.getManager().getClanRelations(clan.getClanAllies()) + "', " +
                 "`rivals`='" + ClanManager.getManager().getClanRelations(clan.getClanRivals()) + "', " +
@@ -198,14 +205,14 @@ public class DBConnection {
             result = preparedStatement.executeQuery();
 
             if (result != null) {
-                int size = 0;
+//                int size = 0;
+//
+//                if (result.last()) {
+//                    size = result.getRow();
+//                    result.beforeFirst();
+//                }
 
-                if (result.last()) {
-                    size = result.getRow();
-                    result.beforeFirst();
-                }
-
-                ret = new HashMap<>(size * (size / 2));
+                ret = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
                 while (result.next()) {
                     try {
@@ -213,24 +220,28 @@ public class DBConnection {
                         String tag = result.getString(3);
                         String description = result.getString(4);
                         ZonedDateTime creation = ZonedDateTime.parse(result.getString(5));
+                        int gladiatorWins = result.getInt(12), gladiatorLosses = result.getInt(13);
+                        int miniGladiatorWins = result.getInt(14), miniGladiatorLosses = result.getInt(15);
 
-                        Clan clan = new Clan(name, tag, description, creation);
+                        Clan clan = new Clan(name, tag, description, creation, gladiatorWins, gladiatorLosses, miniGladiatorWins, miniGladiatorLosses);
                         if (clan.isNull()) continue;
 
                         Location base = ClanManager.getManager().deserializeLocation(result.getString(6));
                         boolean friendlyFire = result.getBoolean(7);
-                        GeneralStats stats = new GeneralStats(result.getDouble(8), result.getInt(9), result.getInt(10));
-                        List<ClanMember> members = ClanManager.getManager().getClanMembers(result.getString(12));
-                        List<String> clanAllies = ClanManager.getManager().getClanRelations(result.getString(13));
-                        List<String> clanRivals = ClanManager.getManager().getClanRelations(result.getString(14));
-                        String creatorName = result.getString(15);
-                        UUID creator = UUID.fromString(result.getString(16));
+                        double coins = result.getDouble(8);
+                        int kills = result.getInt(9);
+                        int deaths = result.getInt(10);
+                        List<ClanMember> members = ClanManager.getManager().getClanMembers(result.getString(16));
+                        List<String> clanAllies = ClanManager.getManager().getClanRelations(result.getString(17));
+                        List<String> clanRivals = ClanManager.getManager().getClanRelations(result.getString(18));
+                        String creatorName = result.getString(19);
+                        UUID creator = UUID.fromString(result.getString(20));
 
                         /*
                          * Then, we need load
                          * completely this clan.
                          */
-                        clan.load(UUID.fromString(result.getString(1)), creatorName, creator, base, friendlyFire, stats, members, clanAllies, clanRivals);
+                        clan.load(UUID.fromString(result.getString(1)), creatorName, creator, base, friendlyFire, coins, kills, deaths, members, clanAllies, clanRivals);
 
                         ret.put(clan.getUncoloredTag(), clan);
                     } catch (Exception ex) {
@@ -246,17 +257,6 @@ public class DBConnection {
 
         return ret;
     }
-
-//    /**
-//     *
-//     * @param name Player name.
-//     * @return If player has clan.
-//     *   - Null: Player doesn't.
-//     *   - {@link Clan}: Player has Clan.
-//     */
-//    public Clan hasClan(String name) {
-//        return null;
-//    }
 
     /**
      * Insert a new member
@@ -279,9 +279,9 @@ public class DBConnection {
                 "'" + member.getTag() + "', " +
                 "'" + member.getRole().getId() + "', " +
                 "'" + member.getJoinedDate().toInstant() + "', " +
-                "'" + member.getPlayerStats().getCoins() + "', " +
-                "'" + member.getPlayerStats().getKills() + "', " +
-                "'" + member.getPlayerStats().getDeaths() + "');";
+                "'" + member.getCoins() + "', " +
+                "'" + member.getKills() + "', " +
+                "'" + member.getDeaths() + "');";
         executeUpdate(query);
     }
 
@@ -305,9 +305,9 @@ public class DBConnection {
                 "`tag`='" + member.getTag() + "', " +
                 "`role`='" + member.getRole().getId() + "', " +
                 "`joined`='" + member.getJoinedDate().toInstant() + "', " +
-                "`coins`='" + member.getPlayerStats().getCoins() + "', " +
-                "`kills`='" + member.getPlayerStats().getKills() + "', " +
-                "`deaths`='" + member.getPlayerStats().getDeaths() + "' WHERE `uuid`='" + uuid + "';";
+                "`coins`='" + member.getCoins() + "', " +
+                "`kills`='" + member.getKills() + "', " +
+                "`deaths`='" + member.getDeaths() + "' WHERE `uuid`='" + uuid + "';";
         executeUpdate(query);
     }
 
@@ -337,8 +337,10 @@ public class DBConnection {
                 String tag = result.getString(3);
                 ClanRole role = ClanRole.getById(result.getInt(4));
                 ZonedDateTime joined = ZonedDateTime.parse(result.getString(5));
-                GeneralStats stats = new GeneralStats(result.getDouble(6), result.getInt(7), result.getInt(8));
-                return new ClanMember(uuid, name, tag, role, joined, stats);
+//                double coins = result.getDouble(6);
+                int kills = result.getInt(7);
+                int deaths = result.getInt(8);
+                return new ClanMember(uuid, name, tag, role, joined, kills, deaths);
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -376,8 +378,10 @@ public class DBConnection {
                 String tag = result.getString(3);
                 ClanRole role = ClanRole.getById(result.getInt(4));
                 ZonedDateTime joined = ZonedDateTime.parse(result.getString(5));
-                GeneralStats stats = new GeneralStats(result.getDouble(6), result.getInt(7), result.getInt(8));
-                return new ClanMember(uuid, result.getString(2), tag, role, joined, stats);
+//                double coins = result.getDouble(6);
+                int kills = result.getInt(7);
+                int deaths = result.getInt(8);
+                return new ClanMember(uuid, result.getString(2), tag, role, joined, kills, deaths);
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -410,7 +414,7 @@ public class DBConnection {
 
     static void setupTable() {
         // Try to create the clan table.
-        final String clan = "CREATE TABLE IF NOT EXISTS `" + DBManager.CLAN_TABLE + "` (`uuid` VARCHAR(36) NOT NULL, `name` VARCHAR(16) NOT NULL, `tag` VARCHAR(16), `description` TINYTEXT, `creation_date` VARCHAR(32), `base` VARCHAR(56), `friendly_fire` BOOLEAN, `coins` DOUBLE(64,2), `kills` INT NOT NULL DEFAULT '0', `deaths` INT NOT NULL DEFAULT '0', `kdr` DOUBLE NOT NULL DEFAULT '0', `clan_members` TEXT, `allies` VARCHAR(255), `rivals` VARCHAR(255), `leader_name` VARCHAR(16) NOT NULL, `leader_uuid` VARCHAR(36) NOT NULL, PRIMARY KEY (`uuid`));";
+        final String clan = "CREATE TABLE IF NOT EXISTS `" + DBManager.CLAN_TABLE + "` (`uuid` VARCHAR(36) NOT NULL, `name` VARCHAR(16) NOT NULL, `tag` VARCHAR(16), `description` TINYTEXT, `creation_date` VARCHAR(32), `base` VARCHAR(56), `friendly_fire` BOOLEAN, `coins` DOUBLE(64,2), `kills` INT NOT NULL DEFAULT '0', `deaths` INT NOT NULL DEFAULT '0', `kdr` DOUBLE NOT NULL DEFAULT '0', `gladiator_wins` INT NOT NULL DEFAULT '0', `gladiator_losses` INT NOT NULL DEFAULT '0', `minigladiator_wins` INT NOT NULL DEFAULT '0', `minigladiator_losses` INT NOT NULL DEFAULT '0', `clan_members` TEXT, `allies` VARCHAR(255), `rivals` VARCHAR(255), `leader_name` VARCHAR(16) NOT NULL, `leader_uuid` VARCHAR(36) NOT NULL, PRIMARY KEY (`uuid`));";
         executeUpdate(clan);
 
         // Try to create the clanMembers table.

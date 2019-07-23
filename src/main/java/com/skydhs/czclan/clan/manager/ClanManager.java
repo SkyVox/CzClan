@@ -6,7 +6,6 @@ import com.skydhs.czclan.clan.Log;
 import com.skydhs.czclan.clan.database.DBManager;
 import com.skydhs.czclan.clan.manager.objects.Clan;
 import com.skydhs.czclan.clan.manager.objects.ClanMember;
-import com.skydhs.czclan.clan.manager.objects.GeneralStats;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -34,20 +33,21 @@ public class ClanManager {
         ClanManager.manager = this;
         ClanManager.leaderboard = new ClanLeaderboard();
 
-        this.loadedClans = DBManager.getDBManager().getDBConnection().getClans();
-        this.deletedClans = new HashSet<>(64);
-        this.loadedMembers = new HashMap<>(512);
-
-        setupTask(core);
-
         new BukkitRunnable() {
             @Override
             public void run() {
+                loadedClans = DBManager.getDBManager().getDBConnection().getClans();
+
                 for (Player players : Bukkit.getOnlinePlayers()) {
                     ClanManager.getManager().loadClanMember(players);
                 }
             }
         }.runTaskAsynchronously(core);
+
+        this.deletedClans = new HashSet<>(64);
+        this.loadedMembers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+        setupTask(core);
     }
 
     /**
@@ -75,7 +75,7 @@ public class ClanManager {
      */
     public void update() {
         for (Clan clans : new HashMap<>(getLoadedClans()).values()) {
-            if (clans == null || deletedClans.contains(clans.getUncoloredTag())) continue;
+            if (clans == null || deletedClans.contains(clans.getColoredTag())) continue;
             clans.updateTopMembers();
 
             if (clans.isUpdate()) {
@@ -85,7 +85,7 @@ public class ClanManager {
         }
 
         for (String str : new HashSet<>(deletedClans)) {
-            DBManager.getDBManager().getDBConnection().delete(str, DBManager.CLAN_TABLE, "uncolored_tag");
+            DBManager.getDBManager().getDBConnection().delete(str, DBManager.CLAN_TABLE, "tag");
             deletedClans.remove(str);
         }
 
@@ -105,27 +105,34 @@ public class ClanManager {
 
             final boolean pendingInvites = member.hasPendingInvites();
 
-            if (member.hasClan()) {
+            if (member.hasClan() || !pendingInvites) {
                 if (!member.isOnline()) {
-                    member.unload();
-                }
-            } else {
-                if (!pendingInvites) {
                     /*
-                     * If this player doesn't has
-                     * clan, we don't need him
-                     * on our cache.
+                     * Probably someone searched
+                     * for this player.
+                     *
+                     * Remove him from our cache.
                      */
-                    getLoadedMembers().remove(name);
+                    member.unload();
                 }
             }
 
             /*
-             * Update this player,
-             * send all them stats to
+             * To make sure this is
+             * a valid player,
+             * only who is playing
+             * on the server
+             * will be sent to
              * database.
              */
-            DBManager.getDBManager().getDBConnection().updateMember(member);
+            if (member.isOnline()) {
+                /*
+                 * Update this player,
+                 * send all them stats to
+                 * database.
+                 */
+                DBManager.getDBManager().getDBConnection().updateMember(member);
+            }
 
             /*
              * Verify if this player has some
@@ -279,10 +286,29 @@ public class ClanManager {
         return ret;
     }
 
+    /**
+     * Load a specific player.
+     * This should be called
+     * once, when player joins
+     * on the server.
+     *
+     * @param player
+     * @return
+     */
     public ClanMember loadClanMember(Player player) {
+        ClanMember ret = getLoadedMembers().get(player.getName());
+
+        if (ret != null) {
+            if (!ret.isOnline()) {
+                ret.setPlayer(player);
+            }
+
+            return ret;
+        }
+
         for (Clan clans : getLoadedClans().values()) {
             for (ClanMember member : clans.getMembers()) {
-                if (StringUtils.equals(player.getUniqueId().toString(), member.getUniqueId().toString())) {
+                if (StringUtils.equals(player.getName(), member.getName())) {
                     member.setPlayer(player);
                     member.cache();
                     return member;
@@ -290,28 +316,38 @@ public class ClanManager {
             }
         }
 
-        ClanMember ret = DBManager.getDBManager().getDBConnection().getClanMember(player.getUniqueId());
-        if (ret == null) ret = new ClanMember(player, null, ClanRole.UNRANKED, ZonedDateTime.now(), new GeneralStats());
+        ret = DBManager.getDBManager().getDBConnection().getClanMember(player.getUniqueId());
+        if (ret == null) ret = new ClanMember(player, null, ClanRole.UNRANKED, ZonedDateTime.now(), 0, 0);
 
         ret.setPlayer(player);
         ret.cache();
         return ret;
     }
 
-    public void unloadPlayer(Player player) {
-        ClanMember member = getLoadedMembers().get(player.getName());
-        if (member == null) return;
+    /**
+     * Unload player.
+     * This should be called
+     * once, when player
+     * quits the server.
+     *
+     * @param player
+     * @return
+     */
+    public ClanMember unloadPlayer(Player player) {
+        ClanMember ret = getLoadedMembers().get(player.getName());
+        if (ret == null) return null;
 
-        member.setPlayer(null);
-        member.unload();
+        ret.setPlayer(null);
+        return ret;
     }
 
     public ClanMember getClanMember(final String name) {
+        if (name == null || name.isEmpty()) return null;
         if (getLoadedMembers().containsKey(name)) return getLoadedMembers().get(name);
 
         for (Clan clans : getLoadedClans().values()) {
             for (ClanMember member : clans.getMembers()) {
-                if (StringUtils.equals(name, member.getName())) {
+                if (StringUtils.equalsIgnoreCase(name, member.getName())) {
                     member.cache();
                     return member;
                 }
@@ -325,6 +361,15 @@ public class ClanManager {
         return ret;
     }
 
+    /**
+     * Compare if two players
+     * is on the same clan.
+     *
+     * @param one player to compare
+     * @param two player to compare
+     * @return if {@link Player one} is on
+     *         the same clan as {@link Player two}
+     */
     public Boolean isSameClan(Player one, Player two) {
         if (StringUtils.equalsIgnoreCase(one.getName(), two.getName())) return true;
 
@@ -340,6 +385,14 @@ public class ClanManager {
         return false;
     }
 
+    /**
+     * Verify if the name
+     * is already in use
+     * for another clan.
+     *
+     * @param name name to verify
+     * @return if name is already in use.
+     */
     public Boolean isNameInUse(final String name) {
         if (name == null) return false;
 
@@ -352,6 +405,14 @@ public class ClanManager {
         return false;
     }
 
+    /**
+     * Verify if the given
+     * tag is already in
+     * use for another clan.
+     *
+     * @param tag tag to verify
+     * @return if tag is already in use.
+     */
     public Boolean isTagInUse(final String tag) {
         if (tag == null) return false;
 
@@ -359,8 +420,18 @@ public class ClanManager {
         return getLoadedClans().get(search) != null;
     }
 
+    /**
+     * Check if @name and @tag
+     * is available to use.
+     *
+     * @param name name to verify
+     * @param tag tag to verify
+     * @return if this @name and @tag
+     *         is available to use
+     *         in another clan.
+     */
     public Boolean canUse(final String name, final String tag) {
-        return isNameInUse(name) && isTagInUse(tag);
+        return !(isNameInUse(name) && isTagInUse(tag));
     }
 
     /**

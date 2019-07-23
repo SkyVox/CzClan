@@ -18,11 +18,11 @@ public class PlayerDeathListener implements Listener {
         Player killer = player.getKiller();
 
         ClanMember playerMember = ClanManager.getManager().getClanMember(player.getName());
-        playerMember.getPlayerStats().addDeath(1);
+        playerMember.setDeaths(playerMember.getKills() + 1);
 
         if (killer != null) {
             ClanMember killerMember = ClanManager.getManager().getClanMember(killer.getName());
-            killerMember.getPlayerStats().addKill(1);
+            killerMember.setKills(killerMember.getKills() + 1);
         }
     }
 }

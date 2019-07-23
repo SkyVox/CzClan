@@ -64,8 +64,8 @@ public class ClanMenuAddon {
             playerStats.setSkullOwner(member.getName());
             playerStats.withName(ChatColor.GREEN + "Suas Informações");
             playerStats.addLore("");
-            playerStats.addLore(ChatColor.GRAY + "Kills/Deaths: " + member.getPlayerStats().getKills() + "/" + member.getPlayerStats().getDeaths());
-            playerStats.addLore(ChatColor.GRAY + "KDR: " + member.getPlayerStats().getFormattedKDR());
+            playerStats.addLore(ChatColor.GRAY + "Kills/Deaths: " + member.getKills() + "/" + member.getDeaths());
+            playerStats.addLore(ChatColor.GRAY + "KDR: " + member.getFormattedKDR());
 
             ItemStack createClan = new ItemBuilder(Material.WORKBENCH).withName(ChatColor.GREEN + "Criar Clan").withLore("", ChatColor.GRAY + "Clique aqui para criar um", ChatColor.GRAY + "Clan.").build();
             ItemStack topClans = new ItemBuilder(Material.DIAMOND_BARDING).withName(ChatColor.YELLOW + "Classificação de Clans").withLore("", ChatColor.GRAY + "Clique para ver os melhores", ChatColor.GRAY + "clans do servidor.").build();
@@ -90,8 +90,8 @@ public class ClanMenuAddon {
             playerStats.addLore("");
             playerStats.addLore(ChatColor.GRAY + "Membro do Clan '" + clan.getColoredTag() + ChatColor.GRAY + "'");
             playerStats.addLore(ChatColor.GRAY + "Cargo: " + member.getRole().getFullName());
-            playerStats.addLore(ChatColor.GRAY + "Kills/Deaths: " + member.getPlayerStats().getKills() + "/" + member.getPlayerStats().getDeaths());
-            playerStats.addLore(ChatColor.GRAY + "KDR: " + member.getPlayerStats().getFormattedKDR());
+            playerStats.addLore(ChatColor.GRAY + "Kills/Deaths: " + member.getKills() + "/" + member.getDeaths());
+            playerStats.addLore(ChatColor.GRAY + "KDR: " + member.getFormattedKDR());
             playerStats.addLore(ChatColor.GRAY + "Juntou-se em: " + DateTimeFormatter.ofPattern(ClanSettings.DATE_FORMAT_PATTERN).format(member.getJoinedDate()));
 
             ItemStack topClans = new ItemBuilder(Material.DIAMOND_BARDING).withName(ChatColor.YELLOW + "Classificação de Clans").withLore("", ChatColor.GRAY + "Clique para ver os melhores", ChatColor.GRAY + "clans do servidor.").build();
@@ -111,8 +111,8 @@ public class ClanMenuAddon {
                 clanStats.addLore((members.isOnline() ? ChatColor.GREEN : ChatColor.RED) + "  " + SQUARE_CODE /* The representative square */ + " " + ChatColor.GRAY + members.getName());
             }
 
-            ItemStack gladInfo = new ItemBuilder(Material.DIAMOND_CHESTPLATE).withName(ChatColor.YELLOW + "Gladiador Estatísticas:").withLore("", ChatColor.GRAY + "Seu clan possui " + ChatColor.GREEN + "%%glad_stats%%", ChatColor.GRAY + "vitórias no gladiador.").build();
-            ItemStack miniGladInfo = new ItemBuilder(Material.IRON_CHESTPLATE).withName(ChatColor.YELLOW + "Mini Gladiador Estatísticas:").withLore("", ChatColor.GRAY + "Seu clan possui " + ChatColor.GREEN + "%%mini_glad_stats%%", ChatColor.GRAY + "vitórias no mini gladiador.").build();
+            ItemStack gladInfo = new ItemBuilder(Material.DIAMOND_CHESTPLATE).withName(ChatColor.YELLOW + "Gladiador Estatísticas:").withLore("", ChatColor.GRAY + "Essas são as estatísticas do seu ", ChatColor.GRAY + "clan no Gladiador", ChatColor.GRAY + "Vitórias/Derrotas: " + ChatColor.GREEN + ChatColor.BOLD + clan.getGladiatorWins() + "/" + clan.getGladiatorLosses()).build();
+            ItemStack miniGladInfo = new ItemBuilder(Material.IRON_CHESTPLATE).withName(ChatColor.YELLOW + "Mini Gladiador Estatísticas:").withLore("", ChatColor.GRAY + "Essas são as estatísticas do seu ", ChatColor.GRAY + "clan no Mini-Gladiador", ChatColor.GRAY + "Vitórias/Derrotas: " + ChatColor.GREEN + ChatColor.BOLD + clan.getMiniGladiatorWins() + "/" + clan.getMiniGladiatorLosses()).build();
 
             String[] leftClanLore = member.isLeader() ? new String[] { "", ChatColor.GRAY + "Clique aqui para desfazer o Clan." } : new String[] { "", ChatColor.GRAY + "Clique aqui para sair do Clan." };
             ItemStack leftClan = new ItemBuilder(Material.DARK_OAK_DOOR_ITEM).withName(member.isLeader() ? ChatColor.RED + "Desfazer Clan" : ChatColor.RED + "Sair do Clan").withLore(leftClanLore).build();
@@ -168,7 +168,7 @@ public class ClanMenuAddon {
                 for (int position = 0; position < membersLeaderboard.size(); position++) {
                     ClanMember member = membersLeaderboard.get(position);
 
-                    item.addLore(new String[] { ChatColor.GRAY + "" + (position+1) + "º " + member.getName() + ": " + ChatColor.YELLOW + member.getPlayerStats().getKills() + "/" + member.getPlayerStats().getDeaths() });
+                    item.addLore(new String[] { ChatColor.GRAY + "" + (position+1) + "º " + member.getName() + ": " + ChatColor.YELLOW + member.getKills() + "/" + member.getDeaths() });
                 }
             }
 
@@ -206,8 +206,8 @@ public class ClanMenuAddon {
         item.addLore(" ");
         item.addLore(ChatColor.GRAY + "Membro do Clan '" + member.getClan().getColoredTag() + ChatColor.GRAY + "'");
         item.addLore(ChatColor.GRAY + "Cargo: " + member.getRole().getFullName());
-        item.addLore(ChatColor.GRAY + "Kills/Deaths: " + member.getPlayerStats().getKills() + "/" + member.getPlayerStats().getDeaths());
-        item.addLore(ChatColor.GRAY + "KDR: " + member.getPlayerStats().getFormattedKDR());
+        item.addLore(ChatColor.GRAY + "Kills/Deaths: " + member.getKills() + "/" + member.getDeaths());
+        item.addLore(ChatColor.GRAY + "KDR: " + member.getFormattedKDR());
         item.addLore(ChatColor.GRAY + "Juntou-se em: " + DateTimeFormatter.ofPattern(ClanSettings.DATE_FORMAT_PATTERN).format(member.getJoinedDate()));
 
         inventory.setItem(13, item.build());
@@ -258,8 +258,8 @@ public class ClanMenuAddon {
 
             item.withName(ChatColor.YELLOW + members.getName());
             item.addLore(ChatColor.GRAY + "Cargo: " + members.getRole().getFullName());
-            item.addLore(ChatColor.GRAY + "Kills/Deaths: " + members.getPlayerStats().getKills() + "/" + members.getPlayerStats().getDeaths());
-            item.addLore(ChatColor.GRAY + "KDR: " + members.getPlayerStats().getFormattedKDR());
+            item.addLore(ChatColor.GRAY + "Kills/Deaths: " + members.getKills() + "/" + members.getDeaths());
+            item.addLore(ChatColor.GRAY + "KDR: " + members.getFormattedKDR());
 
             inventory.addItem(item.build());
         }

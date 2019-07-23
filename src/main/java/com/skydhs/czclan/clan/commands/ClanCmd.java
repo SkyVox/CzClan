@@ -287,10 +287,8 @@ public class ClanCmd implements CommandExecutor {
                 clan.setFriendlyFire(friendlyFire);
 
                 if (friendlyFire) {
-                    player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Commands.clan-pvp-enabled").getColored());
                     clan.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Commands.clan-pvp-enabled").getColored());
                 } else {
-                    player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Commands.clan-pvp-disabled").getColored());
                     clan.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Commands.clan-pvp-disabled").getColored());
                 }
 
