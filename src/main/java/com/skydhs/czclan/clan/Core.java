@@ -2,14 +2,13 @@ package com.skydhs.czclan.clan;
 
 import com.skydhs.czclan.addon.Addon;
 import com.skydhs.czclan.clan.commands.ClanAdminCmd;
+import com.skydhs.czclan.clan.commands.ClanChatCmd;
 import com.skydhs.czclan.clan.commands.ClanCmd;
 import com.skydhs.czclan.clan.database.DBManager;
 import com.skydhs.czclan.clan.integration.ClanPlaceholderExpansion;
 import com.skydhs.czclan.clan.integration.LegendChatListener;
-import com.skydhs.czclan.clan.listener.ClanGeneralListeners;
-import com.skydhs.czclan.clan.listener.PlayerDeathListener;
-import com.skydhs.czclan.clan.listener.PlayerJoinListener;
-import com.skydhs.czclan.clan.listener.PlayerQuitListener;
+import com.skydhs.czclan.clan.integration.PlaceholderAPIDependency;
+import com.skydhs.czclan.clan.listener.*;
 import com.skydhs.czclan.clan.manager.ClanManager;
 import com.skydhs.czclan.clan.manager.format.NumberFormat;
 import org.apache.commons.lang.StringUtils;
@@ -60,6 +59,7 @@ public class Core extends JavaPlugin {
         this.addon = new Addon(this);
 
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            PlaceholderAPIDependency.setEnabled(true);
             new ClanPlaceholderExpansion(this).register();
         }
 
@@ -73,8 +73,10 @@ public class Core extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(), this);
         getServer().getPluginManager().registerEvents(new ClanGeneralListeners(), this);
+        getServer().getPluginManager().registerEvents(new CommandPreprocessListener(), this);
         getServer().getPluginCommand("clan").setExecutor(new ClanCmd(this));
         getServer().getPluginCommand("clanadmin").setExecutor(new ClanAdminCmd());
+        getServer().getPluginCommand("clanchat").setExecutor(new ClanChatCmd());
 
         sendMessage(ChatColor.YELLOW +  NAME + ChatColor.DARK_GRAY + "> " + ChatColor.GRAY + "has been enabled! Took " + getSpentTime(time) + "ms.");
         sendMessage("----------");

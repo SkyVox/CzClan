@@ -2,11 +2,14 @@ package com.skydhs.czclan.clan.commands;
 
 import com.skydhs.czclan.clan.Core;
 import com.skydhs.czclan.clan.FileUtils;
+import com.skydhs.czclan.clan.integration.PlaceholderAPIDependency;
 import com.skydhs.czclan.clan.manager.ClanManager;
 import com.skydhs.czclan.clan.manager.ClanRole;
 import com.skydhs.czclan.clan.manager.ClanSettings;
 import com.skydhs.czclan.clan.manager.objects.Clan;
 import com.skydhs.czclan.clan.manager.objects.ClanMember;
+import me.clip.placeholderapi.PlaceholderAPI;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.entity.Player;
 
 public class CommandHandle {
@@ -126,6 +129,11 @@ public class CommandHandle {
         String target = args[1];
         ClanMember targetMember = clan.getMember(target);
 
+        if (targetMember == null) {
+            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.target-not-found").getColored());
+            return;
+        }
+
         // Then, try to promote this player.
         clan.promoteMember(member, targetMember);
     }
@@ -153,6 +161,11 @@ public class CommandHandle {
 
         String target = args[1];
         ClanMember targetMember = clan.getMember(target);
+
+        if (targetMember == null) {
+            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.target-not-found").getColored());
+            return;
+        }
 
         // Then, try to demote this player.
         clan.demoteMember(member, targetMember);
@@ -407,5 +420,33 @@ public class CommandHandle {
                 clan.removeRivals(targetClan);
                 break;
         }
+    }
+
+    public static void clanChatMessage(Player player, ClanMember member, String[] args) {
+        if (member == null || !member.hasClan() || member.getClan().isNull()) {
+            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.not-in-clan").getColored());
+            return;
+        }
+
+        Clan clan = member.getClan();
+        StringBuilder message = new StringBuilder(args.length);
+        String format = null;
+
+        try {
+            if (PlaceholderAPIDependency.isEnabled()) {
+                format = PlaceholderAPI.setPlaceholders(player, ClanSettings.CLAN_CHAT_FORMAT);
+            } else {
+                format = new FileUtils.StringReplace(ClanSettings.CLAN_CHAT_FORMAT).getString(player, clan);
+            }
+        } catch (NullPointerException ex) {
+            format = new FileUtils.StringReplace(ClanSettings.CLAN_CHAT_FORMAT).getString(player, clan);
+        }
+
+        for (String str : args) {
+            message.append(str).append(" ");
+        }
+
+        clan.sendMessage(StringUtils.replaceEach(format, new String[] { "%message%", "%player_name%" }, new String[] { message.toString(), player.getName() }));
+        return;
     }
 }

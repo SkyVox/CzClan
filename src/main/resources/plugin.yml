@@ -12,9 +12,13 @@ main: com.skydhs.czclan.clan.Core
 
 commands:
   clan:
-    description: "Use este comando para interagir com seu clan."
+    description: "Interact with your clan."
     usage: "/clan ajuda"
   clanadmin:
-    description: "Use este comando para interagir com os clans."
+    description: "Clan admin command."
     aliases: "ca"
     usage: "/clan ajuda"
+  clanchat:
+    description: "Sends a message for your clan."
+    aliases: "."
+    usage: "/. <message>"

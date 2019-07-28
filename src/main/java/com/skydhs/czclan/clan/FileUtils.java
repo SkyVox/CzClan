@@ -223,7 +223,7 @@ public class FileUtils {
         }
     }
 
-    public class StringReplace {
+    public static class StringReplace {
         private String str;
 
         public StringReplace(String str) {
@@ -308,7 +308,7 @@ public class FileUtils {
         }
     }
 
-    public class ListReplace {
+    public static class ListReplace {
         private String[] str;
 
         public ListReplace(String[] str) {

@@ -11,6 +11,9 @@ Settings:
   # seja, false.
   boolean-false: "&cOff"
 
+  # Formatação do chat do clan.
+  clan-chat-format: "&8[%skyclan_clan_tag%&8] %player_name%: &f%message%"
+
   # Formatação dos dia/horário.
   date-format-pattern: "dd/MM/yyyy - hh:mm"
 
@@ -171,6 +174,8 @@ Broadcast:
 # Mensagens dos comandos.
 Commands:
   only-players: "&cApenas jogadores podem executar este comando."
+
+  clan-chat-help: "&cUse: &e/. <mensagem>."
 
   create-clan-help: "&cUse: &e/clan criar/create <nome> <tag> <descrição> &b: Criar novo clan."
   promote-member-help: "&cUse: &e/clan promover/promote <jogador> &b: Promover um jogador."
