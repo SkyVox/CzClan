@@ -56,6 +56,7 @@ public class Clan extends ClanAddon implements GeneralStats {
 
     /*
      * TODO, ClanMember#isOnline sometimes is false even when this player is online.
+     * TODO, Improve the update method.
      */
 
     /**
@@ -605,6 +606,18 @@ public class Clan extends ClanAddon implements GeneralStats {
     public void disband() {
         ClanManager.getManager().getLoadedClans().remove(getUncoloredTag());
         ClanManager.getManager().getDeletedClans().add(getColoredTag());
+
+        for (String str : getClanAllies()) {
+            Clan clan = ClanManager.getManager().getClan(str);
+            if (clan == null) continue;
+            clan.removeAliases(this);
+        }
+
+        for (String str : getClanRivals()) {
+            Clan clan = ClanManager.getManager().getClan(str);
+            if (clan == null) continue;
+            clan.removeRivals(this);
+        }
 
         String[] message = FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Messages.clan-disbanded-broadcast").getList(null, this);
 

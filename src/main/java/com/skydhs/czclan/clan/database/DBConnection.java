@@ -122,10 +122,10 @@ public class DBConnection {
                 "`kills`='" + clan.getKills() + "', " +
                 "`deaths`='" + clan.getDeaths() + "', " +
                 "`kdr`='" + clan.getKDR() + "', " +
-                "`gladiator_wins`'" + clan.getGladiatorWins() + "', " +
-                "`gladiator_losses`'" + clan.getGladiatorLosses() + "', " +
-                "`minigladiator_wins`'" + clan.getMiniGladiatorWins() + "', " +
-                "`minigladiator_losses`'" + clan.getMiniGladiatorLosses() + "', " +
+                "`gladiator_wins`='" + clan.getGladiatorWins() + "', " +
+                "`gladiator_losses`='" + clan.getGladiatorLosses() + "', " +
+                "`minigladiator_wins`='" + clan.getMiniGladiatorWins() + "', " +
+                "`minigladiator_losses`='" + clan.getMiniGladiatorLosses() + "', " +
                 "`clan_members`='" + ClanManager.getManager().getClanMembers(clan.getMembers()).toString() + "', " +
                 "`allies`='" + ClanManager.getManager().getClanRelations(clan.getClanAllies()) + "', " +
                 "`rivals`='" + ClanManager.getManager().getClanRelations(clan.getClanRivals()) + "', " +

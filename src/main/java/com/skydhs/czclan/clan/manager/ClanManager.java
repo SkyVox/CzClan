@@ -63,6 +63,9 @@ public class ClanManager {
             @Override
             public void run() {
                 update();
+
+                // Update clan leaderboard.
+                leaderboard.updateLeaderboard();
             }
         }.runTaskTimerAsynchronously(core, 20*60, time);
     }
@@ -74,7 +77,11 @@ public class ClanManager {
      * is needed.
      */
     public void update() {
-        for (Clan clans : new HashMap<>(getLoadedClans()).values()) {
+        final Map<String, Clan> loadedClans = new HashMap<>(getLoadedClans());
+        final Set<String> deletedClans = new HashSet<>(this.deletedClans);
+        final Map<String, ClanMember> loadedMembers = new HashMap<>(getLoadedMembers());
+
+        for (Clan clans : loadedClans.values()) {
             if (clans == null || deletedClans.contains(clans.getColoredTag())) continue;
             clans.updateTopMembers();
 
@@ -84,15 +91,12 @@ public class ClanManager {
             }
         }
 
-        for (String str : new HashSet<>(deletedClans)) {
+        for (String str : deletedClans) {
             DBManager.getDBManager().getDBConnection().delete(str, DBManager.CLAN_TABLE, "tag");
             deletedClans.remove(str);
         }
 
-        // Update clan leaderboard.
-        leaderboard.updateLeaderboard();
-
-        for (String name : new HashMap<>(getLoadedMembers()).keySet()) {
+        for (String name : loadedMembers.keySet()) {
             ClanMember member = getLoadedMembers().get(name);
 
             if (member == null) {

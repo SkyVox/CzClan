@@ -119,7 +119,7 @@ public class ClanCmd implements CommandExecutor {
                     if (!clan.hasRivals()) {
                         player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Commands.no-rivals-found").getColored());
                     } else {
-                        player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Commands.rivals-list").getColoredString(new String[] { "%sky_clan_rivals%" }, new String[] { clan.getFormattedRivals(',') }));
+                        player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Commands.rivals-list").getColoredString(new String[] { "%skyclan_clan_rivals%" }, new String[] { clan.getFormattedRivals(',') }));
                     }
                 } else {
                     player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.not-in-clan").getColored());
@@ -137,7 +137,7 @@ public class ClanCmd implements CommandExecutor {
                     if (!clan.hasAllies()) {
                         player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Commands.no-allies-found").getColored());
                     } else {
-                        player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Commands.allies-list").getColoredString(new String[] { "%sky_clan_allies%" }, new String[] { clan.getFormattedAllies(',') }));
+                        player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Commands.allies-list").getColoredString(new String[] { "%skyclan_clan_allies%" }, new String[] { clan.getFormattedAllies(',') }));
                     }
                 } else {
                     player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.not-in-clan").getColored());
