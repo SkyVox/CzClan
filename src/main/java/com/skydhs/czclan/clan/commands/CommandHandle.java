@@ -134,6 +134,11 @@ public class CommandHandle {
             return;
         }
 
+        if (!targetMember.hasClan() || !clan.equals(targetMember.getClan())) {
+            player.sendMessage(file.getString(CONFIG, "Messages.target-not-on-same-clan").getColoredString(new String[] { "%target_name%" }, new String[] { target }));
+            return;
+        }
+
         // Then, try to promote this player.
         clan.promoteMember(member, targetMember);
     }
@@ -164,6 +169,11 @@ public class CommandHandle {
 
         if (targetMember == null) {
             player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.target-not-found").getColored());
+            return;
+        }
+
+        if (!targetMember.hasClan() || !clan.equals(targetMember.getClan())) {
+            player.sendMessage(file.getString(CONFIG, "Messages.target-not-on-same-clan").getColoredString(new String[] { "%target_name%" }, new String[] { target }));
             return;
         }
 
@@ -200,6 +210,17 @@ public class CommandHandle {
         }
 
         ClanMember targetMember = ClanManager.getManager().getClanMember(target);
+
+        if (targetMember == null) {
+            player.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.target-not-found").getColored());
+            return;
+        }
+
+        if (targetMember.hasClan()) {
+            player.sendMessage(file.getString(CONFIG, "Messages.target-has-clan-already").getColoredString(new String[] { "%target_name%" }, new String[] { target }));
+            return;
+        }
+
         targetMember.invitePlayer(clan);
 
         player.sendMessage(file.getString(CONFIG, "Messages.invite-player-sender").getString(player, clan, new String[] { "%target_name%" }, new String[] { target }));

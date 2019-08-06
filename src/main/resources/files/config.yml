@@ -107,6 +107,7 @@ Messages:
   target-not-found: "&cNão foi possível encontrar este jogador."
   player-not-online: "&cEste jogador não está online."
   target-not-on-same-clan: "&cEste jogador não é membro do seu Clan."
+  target-has-clan-already: "&cEste jogador já possui Clan."
   already-has-clan: "&cVocê já possui clan."
   target-has-higher-role: "&cEste jogador possui um cargo maior!"
   # Criação/Editar clan.

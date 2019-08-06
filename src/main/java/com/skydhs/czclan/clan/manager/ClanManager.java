@@ -81,6 +81,11 @@ public class ClanManager {
         final Set<String> deletedClans = new HashSet<>(this.deletedClans);
         final Map<String, ClanMember> loadedMembers = new HashMap<>(getLoadedMembers());
 
+        for (String str : deletedClans) {
+            DBManager.getDBManager().getDBConnection().delete(str, DBManager.CLAN_TABLE, "tag");
+            this.deletedClans.remove(str);
+        }
+
         for (Clan clans : loadedClans.values()) {
             if (clans == null || deletedClans.contains(clans.getColoredTag())) continue;
             clans.updateTopMembers();
@@ -89,11 +94,6 @@ public class ClanManager {
                 clans.setUpdate(false);
                 DBManager.getDBManager().getDBConnection().updateClan(clans);
             }
-        }
-
-        for (String str : deletedClans) {
-            DBManager.getDBManager().getDBConnection().delete(str, DBManager.CLAN_TABLE, "tag");
-            deletedClans.remove(str);
         }
 
         for (String name : loadedMembers.keySet()) {
