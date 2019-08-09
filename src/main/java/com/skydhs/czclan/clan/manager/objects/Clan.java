@@ -38,8 +38,8 @@ public class Clan extends ClanAddon implements GeneralStats {
     // ----- \\
     // Below: Clan Allies and Rivals
     // ----- \\
-    private List<String> clanAllies;
-    private List<String> clanRivals;
+    private Set<String> clanAllies;
+    private Set<String> clanRivals;
 
     /*
      * This field is required whenever
@@ -105,8 +105,8 @@ public class Clan extends ClanAddon implements GeneralStats {
         this.deaths = 0;
         this.members = new ArrayList<>(ClanSettings.CLAN_MAX_MEMBERS);
         this.topMembers = new LinkedList<>();
-        this.clanAllies = new ArrayList<>(ClanSettings.CLAN_RELATIONS_SIZE);
-        this.clanRivals = new ArrayList<>(ClanSettings.CLAN_RELATIONS_SIZE);
+        this.clanAllies = new HashSet<>(ClanSettings.CLAN_RELATIONS_SIZE);
+        this.clanRivals = new HashSet<>(ClanSettings.CLAN_RELATIONS_SIZE);
 
         ClanMember leader = member;
         if (leader == null) {
@@ -139,7 +139,7 @@ public class Clan extends ClanAddon implements GeneralStats {
      * @param clanAllies
      * @param clanRivals
      */
-    public void load(UUID uuid, String creatorName, UUID creator, Location base, Boolean friendlyFire, double coins, int kills, int deaths, List<ClanMember> members, List<String> clanAllies, List<String> clanRivals) {
+    public void load(UUID uuid, String creatorName, UUID creator, Location base, Boolean friendlyFire, double coins, int kills, int deaths, List<ClanMember> members, Set<String> clanAllies, Set<String> clanRivals) {
         this.uuid = uuid;
         this.creatorName = creatorName;
         this.creator = creator;
@@ -441,7 +441,7 @@ public class Clan extends ClanAddon implements GeneralStats {
         target.sendMessage(FileUtils.get().getString(FileUtils.Files.CONFIG, "Messages.demote-player-target").getString(target.getPlayer(), this, new String[] { "%target_name%", "%skyclan_member_role%" }, new String[] { target.getName(), role.getFullName() }));
     }
 
-    public List<String> getClanAllies() {
+    public Set<String> getClanAllies() {
         return clanAllies;
     }
 
@@ -492,7 +492,7 @@ public class Clan extends ClanAddon implements GeneralStats {
         clan.update();
     }
 
-    public List<String> getClanRivals() {
+    public Set<String> getClanRivals() {
         return clanRivals;
     }
 
@@ -541,6 +541,20 @@ public class Clan extends ClanAddon implements GeneralStats {
         this.update();
         clan.getClanRivals().remove(getUncoloredTag());
         clan.update();
+    }
+
+    private void updateRelations() {
+        for (String str : getClanAllies()) {
+            Clan clan = ClanManager.getManager().getClan(str);
+            if (clan == null) continue;
+            clan.removeAliases(this);
+        }
+
+        for (String str : getClanRivals()) {
+            Clan clan = ClanManager.getManager().getClan(str);
+            if (clan == null) continue;
+            clan.removeRivals(this);
+        }
     }
 
     /**

@@ -232,8 +232,8 @@ public class DBConnection {
                         int kills = result.getInt(9);
                         int deaths = result.getInt(10);
                         List<ClanMember> members = ClanManager.getManager().getClanMembers(result.getString(16));
-                        List<String> clanAllies = ClanManager.getManager().getClanRelations(result.getString(17));
-                        List<String> clanRivals = ClanManager.getManager().getClanRelations(result.getString(18));
+                        Set<String> clanAllies = ClanManager.getManager().getClanRelations(result.getString(17));
+                        Set<String> clanRivals = ClanManager.getManager().getClanRelations(result.getString(18));
                         String creatorName = result.getString(19);
                         UUID creator = UUID.fromString(result.getString(20));
 

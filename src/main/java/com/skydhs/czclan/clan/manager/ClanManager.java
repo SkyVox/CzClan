@@ -264,21 +264,21 @@ public class ClanManager {
         return ret;
     }
 
-    public StringBuilder getClanRelations(List<String> value) {
+    public StringBuilder getClanRelations(Set<String> value) {
         StringBuilder ret = new StringBuilder(value.size());
 
-        for (int i = 0; i < value.size(); i++) {
-            String str = value.get(i);
-            ret.append(str);
+        int index = 0;
 
-            if ((i+1) < value.size()) ret.append(", ");
+        for (String str : value) {
+            ret.append(str);
+            if ((++index + 1) < value.size()) ret.append(", ");
         }
 
         return ret;
     }
 
-    public List<String> getClanRelations(String value) {
-        List<String> ret = new ArrayList<>(ClanSettings.CLAN_RELATIONS_SIZE);
+    public Set<String> getClanRelations(String value) {
+        Set<String> ret = new HashSet<>(ClanSettings.CLAN_RELATIONS_SIZE);
         String[] split = value.split(", ");
 
         for (int i = 0; i < split.length; i++) {
