@@ -6,6 +6,7 @@ import com.skydhs.czclan.clan.integration.PlaceholderAPIDependency;
 import com.skydhs.czclan.clan.manager.ClanManager;
 import com.skydhs.czclan.clan.manager.ClanRole;
 import com.skydhs.czclan.clan.manager.ClanSettings;
+import com.skydhs.czclan.clan.manager.Cooldown;
 import com.skydhs.czclan.clan.manager.objects.Clan;
 import com.skydhs.czclan.clan.manager.objects.ClanMember;
 import me.clip.placeholderapi.PlaceholderAPI;
@@ -29,6 +30,18 @@ public class CommandHandle {
         if (member != null && member.hasClan()) {
             player.sendMessage(file.getString(CONFIG, "Messages.already-has-clan").getColored());
             return false;
+        }
+
+        if (Cooldown.isInCooldown(player.getUniqueId(), "Clan_Creation_Cooldown")) {
+            player.sendMessage(file.getString(CONFIG, "Messages.clan-creation-cooldown").getString(new String[] {
+                    "%seconds%"
+            }, new String[] {
+                    String.valueOf(Cooldown.getTimeLeft(player.getUniqueId(), "Clan_Creation_Cooldown"))
+            }));
+            return false;
+        } else {
+            Cooldown cooldown = new Cooldown(player.getUniqueId(), "Clan_Creation_Cooldown", ClanSettings.CLAN_CREATION_COOLDOWN);
+            cooldown.start();
         }
 
         String name = ClanManager.getManager().stripColor(args[1]);

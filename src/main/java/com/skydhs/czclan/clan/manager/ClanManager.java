@@ -122,21 +122,11 @@ public class ClanManager {
             }
 
             /*
-             * To make sure this is
-             * a valid player,
-             * only who is playing
-             * on the server
-             * will be sent to
-             * database.
+             * @Update this player.
+             * Send all them information
+             * to database/mysql.
              */
-            if (member.isOnline()) {
-                /*
-                 * Update this player,
-                 * send all them stats to
-                 * database.
-                 */
-                DBManager.getDBManager().getDBConnection().updateMember(member);
-            }
+            DBManager.getDBManager().getDBConnection().updateMember(member);
 
             /*
              * Verify if this player has some

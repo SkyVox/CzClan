@@ -11,6 +11,9 @@ Settings:
   # seja, false.
   boolean-false: "&cOff"
 
+  # Delay na criação do clan.
+  clan-creation-cooldown: 60 # Em segundos.
+
   # Formatação do chat do clan.
   clan-chat-format: "&8[%skyclan_clan_tag%&8] %player_name%: &f%message%"
 
@@ -118,6 +121,7 @@ Messages:
   invalid-tag-size: "&cA tag do clan deve ter entre &f%max_length% &ce &f%min_length%&c."
   invalid-characters: "&cO nome/tag do seu clan possui caracteres inválidos."
   clan-created: "&aVocê criou um novo clan."
+  clan-creation-cooldown: "&cVocê precisa esperar &7%seconds%segundos &cpara criar um novo clan!"
   # Clan player comando.
   target-clan-not-found: "&cEste jogador não possui clan."
   # Comando de promover/rebaixar.

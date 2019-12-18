@@ -3,6 +3,7 @@ package com.skydhs.czclan.clan.manager.objects;
 import com.skydhs.czclan.addon.clan.ClanAddon;
 import com.skydhs.czclan.clan.FileUtils;
 import com.skydhs.czclan.clan.Log;
+import com.skydhs.czclan.clan.database.DBManager;
 import com.skydhs.czclan.clan.interfaces.GeneralStats;
 import com.skydhs.czclan.clan.manager.ClanManager;
 import com.skydhs.czclan.clan.manager.ClanRole;
@@ -619,7 +620,7 @@ public class Clan extends ClanAddon implements GeneralStats {
      */
     public void disband() {
         ClanManager.getManager().getLoadedClans().remove(getUncoloredTag());
-        ClanManager.getManager().getDeletedClans().add(getColoredTag());
+//        ClanManager.getManager().getDeletedClans().add(getColoredTag());
 
         for (String str : getClanAllies()) {
             Clan clan = ClanManager.getManager().getClan(str);
@@ -646,6 +647,8 @@ public class Clan extends ClanAddon implements GeneralStats {
         for (String str : FileUtils.get().getStringList(FileUtils.Files.CONFIG, "Broadcast.clan-disbanded").getList(null, this)) {
             Log.sendPlayerMessages(str);
         }
+
+        DBManager.getDBManager().getDBConnection().delete(getColoredTag(), DBManager.CLAN_TABLE, "tag");
     }
 
     @Override

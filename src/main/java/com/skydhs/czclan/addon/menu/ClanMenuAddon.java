@@ -36,11 +36,11 @@ public class ClanMenuAddon {
 
     private static final ItemStack GLASS = new ItemBuilder(Material.STAINED_GLASS_PANE, 1, (short) 7).withName(" ").build();
     private static final ItemStack[] MAIN_MENU_COMMANDS_HELP = new ItemStack[] {
-            new ItemBuilder(Material.COMMAND).withName(ChatColor.GREEN + "Estatísticas").withLore("", ChatColor.GRAY + "Clique para ver as estatísticas", ChatColor.GRAY + "de um Clan.").build(),
-            new ItemBuilder(Material.COMMAND).withName(ChatColor.GREEN + "Membros").withLore("", ChatColor.GRAY + "Clique para ver os membros", ChatColor.GRAY + "de um Clan.").build(),
-            new ItemBuilder(Material.COMMAND).withName(ChatColor.GREEN + "Alianças").withLore("", ChatColor.GRAY + "Clique para ver as alianças", ChatColor.GRAY + "do seu Clan.").build(),
-            new ItemBuilder(Material.COMMAND).withName(ChatColor.GREEN + "Rivalidades").withLore("", ChatColor.GRAY + "Clique para ver as rivalidades", ChatColor.GRAY + "do seu Clan.").build(),
-            new ItemBuilder(Material.COMMAND).withName(ChatColor.GREEN + "PVP").withLore("", ChatColor.GRAY + "Clique para alterar o pvp", ChatColor.GRAY + "entre os jogadores do Clan.").build()
+            new ItemBuilder(Material.REDSTONE_COMPARATOR).withName(ChatColor.GREEN + "Estatísticas").withLore("", ChatColor.GRAY + "Clique para ver as estatísticas", ChatColor.GRAY + "de um Clan.").build(),
+            new ItemBuilder(Material.SKULL_ITEM, 1, (byte) 3).setCustomTexture("http://textures.minecraft.net/texture/98b7ca3c7d314a61abed8fc18d797fc30b6efc8445425c4e250997e52e6cb").withName(ChatColor.GREEN + "Membros").withLore("", ChatColor.GRAY + "Clique para ver os membros", ChatColor.GRAY + "de um Clan.").build(),
+            new ItemBuilder(Material.LEATHER_CHESTPLATE).withName(ChatColor.GREEN + "Alianças").withLore("", ChatColor.GRAY + "Clique para ver as alianças", ChatColor.GRAY + "do seu Clan.").build(),
+            new ItemBuilder(Material.LEATHER_CHESTPLATE).withName(ChatColor.GREEN + "Rivalidades").withLore("", ChatColor.GRAY + "Clique para ver as rivalidades", ChatColor.GRAY + "do seu Clan.").build(),
+            new ItemBuilder(Material.DIAMOND_SWORD).withName(ChatColor.GREEN + "PVP").withLore("", ChatColor.GRAY + "Clique para alterar o pvp", ChatColor.GRAY + "entre os jogadores do Clan.").build()
     };
 
     private static final char SQUARE_CODE = '\u25A0';

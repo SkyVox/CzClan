@@ -28,6 +28,12 @@ public class ClanSettings {
     public static final String BOOLEAN_FALSE = FileUtils.get().getString(FileUtils.Files.CONFIG, "Settings.boolean-false").get();
 
     /*
+     * Clan creation delay.
+     * In seconds.
+     */
+    public static final int CLAN_CREATION_COOLDOWN = FileUtils.get().getInt(FileUtils.Files.CONFIG, "Settings.clan-creation-cooldown");
+
+    /*
      * The max characters size
      * that the clan tag can
      * have.
