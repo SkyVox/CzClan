@@ -165,7 +165,7 @@ public class ClanMember implements Comparable<ClanMember>, GeneralStats {
         this.kills = value;
 
         if (hasClan()) {
-            this.clan.setKills(clan.getKills() + this.kills);
+            this.clan.setKills(clan.getKills() + value);
         }
     }
 
@@ -179,7 +179,7 @@ public class ClanMember implements Comparable<ClanMember>, GeneralStats {
         this.deaths = value;
 
         if (hasClan()) {
-            this.clan.setDeaths(clan.getDeaths() + this.deaths);
+            this.clan.setDeaths(clan.getDeaths() + value);
         }
     }
 

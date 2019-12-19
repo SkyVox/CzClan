@@ -410,7 +410,7 @@ public class ClanManager {
     public Boolean isTagInUse(final String tag) {
         if (tag == null) return false;
 
-        String search = ChatColor.stripColor(tag);
+        String search = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', tag));
         return getLoadedClans().get(search) != null;
     }
 
