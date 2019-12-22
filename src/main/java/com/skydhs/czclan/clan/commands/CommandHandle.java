@@ -33,7 +33,7 @@ public class CommandHandle {
         }
 
         if (Cooldown.isInCooldown(player.getUniqueId(), "Clan_Creation_Cooldown")) {
-            player.sendMessage(file.getString(CONFIG, "Messages.clan-creation-cooldown").getString(new String[] {
+            player.sendMessage(file.getString(CONFIG, "Messages.clan-creation-cooldown").getColoredString(new String[] {
                     "%seconds%"
             }, new String[] {
                     String.valueOf(Cooldown.getTimeLeft(player.getUniqueId(), "Clan_Creation_Cooldown"))
